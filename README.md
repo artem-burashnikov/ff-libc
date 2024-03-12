@@ -20,7 +20,7 @@ TODO
 
 ### Prerequisites
 
-- CMake (version 3.22.1 or higher)
+- CMake (version 3.10 or higher)
 - GCC
 
 ### Building
