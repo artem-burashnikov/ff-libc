@@ -3,15 +3,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-int poly_init(poly_t *poly, int8_t degree, int8_t *coeff) {
-  if (!coeff || (degree <= 0)) {
-    return 1;
-  }
+poly_t *poly_init(int8_t degree, int8_t *coeff) {
+  poly_t *poly = malloc(sizeof(*poly));
 
-  poly->deg = degree;
+  if (!poly || !coeff) {
+    return NULL;
+  }
+  
+  poly->deg = (degree > 0) ? degree : MINUS_INFINITY;
   poly->coeff = coeff;
 
-  return 0;
+  return poly;
 }
 
 void poly_destroy(poly_t *poly) {
