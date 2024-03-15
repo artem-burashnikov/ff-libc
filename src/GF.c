@@ -92,12 +92,11 @@ GFelement_t *GFelement_get_neutral(GF_t *GF) {
 }
 
 GFelement_t *GFelement_get_unity(GF_t *GF) {
-  GFelement_t *unity;
-
   /* Get neutral and set the least significant digit to one. */
-  unity = GFelement_get_neutral(GF);
+  GFelement_t *unity = GFelement_get_neutral(GF);
 
-  if (!unity || (!GF->n < 1)) {
+  if (!unity || !GF || (GF->n < 1)) {
+    GFelement_destroy(unity);
     return NULL;
   }
 
