@@ -1,15 +1,15 @@
 #include <stdlib.h>
 
-#include "gf.h"
+#include "../src/GF.h"
 #include "minunit.h"
-#include "poly.h"
+#include "../src/poly.h"
 
 MU_TEST(poly_eq_test) {
   int8_t coeff_a[] = {1, 0, 0, 40, 21, 105};
-  poly_t a = {.deg = 5, .coeff = coeff_a};
+  poly_t a = {.deg = 5, .coeff = coeff_a, .len = 6};
 
   int8_t coeff_b[] = {1, 0, 0, -70, 11, 32};
-  poly_t b = {.deg = 5, .coeff = coeff_b};
+  poly_t b = {.deg = 5, .coeff = coeff_b, .len = 6};
 
   poly_t c = a;
 
@@ -21,7 +21,7 @@ MU_TEST(gf_eq_test) {
   int8_t p = 2;
   int8_t n = 2;
   int8_t coeff[] = {1, 1, 1};
-  poly_t *I = poly_init(2, coeff);
+  poly_t *I = poly_init(2, coeff, 3);
 
   GF_t *GF2_a = GF_init(p, n, I);
   GF_t *GF2_b = GF_init(p, n, I);
@@ -39,9 +39,14 @@ MU_TEST(gf_eq_test) {
   free(GF2_d);
 }
 
+MU_TEST(gf_get_neutral_test) {
+  ;
+}
+
 int main() {
   MU_RUN_TEST(poly_eq_test);
   MU_RUN_TEST(gf_eq_test);
+  MU_RUN_TEST(gf_get_neutral_test);
   MU_REPORT();
   return MU_EXIT_CODE;
 }
