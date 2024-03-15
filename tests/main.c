@@ -1,8 +1,16 @@
 #include <stdlib.h>
 
 #include "../src/GF.h"
-#include "minunit.h"
 #include "../src/poly.h"
+#include "minunit.h"
+
+const int8_t IGF2_2_coeff[3] = {1, 1, 1};
+const poly_t IGF2_2 = {.coeff = IGF2_2_coeff, .deg = 2, .len = 3};
+const GF_t GF2_2 = {.p = 2, .n = 2, .I = &IGF2_2};
+
+const int8_t IGF2_5_coeff[6] = {1, 0, 1, 0, 0, 1};
+const poly_t IGF2_5 = {.coeff = IGF2_2_coeff, .deg = 5, .len = 6};
+const GF_t GF2_5 = {.p = 2, .n = 5, .I = &IGF2_5};
 
 MU_TEST(poly_eq_test) {
   int8_t coeff_a[] = {1, 0, 0, 40, 21, 105};
@@ -40,7 +48,33 @@ MU_TEST(gf_eq_test) {
 }
 
 MU_TEST(gf_get_neutral_test) {
-  ;
+  int8_t zero_coeff_2_2[2] = {0};
+  poly_t zero_2_2 = {.coeff = zero_coeff_2_2, .deg = 0, .len = 2};
+
+  int8_t zero_coeff_2_5[5] = {0};
+  poly_t zero_2_5 = {.coeff = zero_coeff_2_5, .deg = 0, .len = 5};
+
+  GFelement_t *neutral_2_2 = GFelement_get_neutral(&GF2_2);
+  mu_check(neutral_2_2->GF->p == 2);
+  mu_check(neutral_2_2->GF->n == 2);
+  mu_check(neutral_2_2->GF->I->deg == 2);
+  mu_check(neutral_2_2->GF->I->len == 3);
+  mu_check(poly_eq(neutral_2_2->GF->I, &IGF2_2));
+  mu_check(neutral_2_2->poly->deg == 0);
+  mu_check(neutral_2_2->poly->len == 2);
+  mu_check(poly_eq(neutral_2_2->poly, &zero_2_2));
+  GFelement_destroy(neutral_2_2);
+
+  GFelement_t *neutral_2_5 = GFelement_get_neutral(&GF2_5);
+  mu_check(neutral_2_5->GF->p == 2);
+  mu_check(neutral_2_5->GF->n == 5);
+  mu_check(neutral_2_5->GF->I->deg == 5);
+  mu_check(neutral_2_5->GF->I->len == 6);
+  mu_check(poly_eq(neutral_2_5->GF->I, &IGF2_5));
+  mu_check(neutral_2_5->poly->deg == 0);
+  mu_check(neutral_2_5->poly->len == 5);
+  mu_check(poly_eq(neutral_2_5->poly, &zero_2_5));
+  GFelement_destroy(neutral_2_5);
 }
 
 int main() {
