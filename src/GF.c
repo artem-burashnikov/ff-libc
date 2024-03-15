@@ -20,18 +20,12 @@ GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
   return GF;
 }
 
-void GF_destroy(GF_t *GF) {
-  poly_destroy(GF->I);
-  free(GF);
-  return;
-}
-
 void GFelement_destroy(GFelement_t *a) {
   poly_destroy(a->poly);
   return;
 }
 
-int GF_eq(GF_t *f, GF_t *k) {
+int GF_eq(const GF_t *f, const GF_t *k) {
   // Irreducible polynomials must match.
   int8_t ret = poly_eq(f->I, k->I);
 
@@ -43,10 +37,7 @@ int GF_eq(GF_t *f, GF_t *k) {
   return ret;
 }
 
-int GFelement_add(GFelement_t *res, GFelement_t *a, GFelement_t *b) {
-  int8_t p, n;
-  int8_t *u, *v, *w;
-
+int GFelement_add(GFelement_t *res, const GFelement_t *a, const GFelement_t *b) {
   // Invalid input.
   if (!res || !a || !b) {
     return 1;
@@ -58,14 +49,14 @@ int GFelement_add(GFelement_t *res, GFelement_t *a, GFelement_t *b) {
   }
 
   // Dimension of the field extension.
-  n = a->GF->n;
+  int8_t n = a->GF->n;
 
   // Characteristic of the field.
-  p = res->GF->p;
+  int8_t p = res->GF->p;
 
-  w = res->poly->coeff;
-  u = a->poly->coeff;
-  v = b->poly->coeff;
+  int8_t *w = res->poly->coeff;
+  int8_t *u = a->poly->coeff;
+  int8_t *v = b->poly->coeff;
 
   for (size_t i = 0; i < n; ++i) {
     w[i] = (u[i] + v[i]) % p;
@@ -75,27 +66,24 @@ int GFelement_add(GFelement_t *res, GFelement_t *a, GFelement_t *b) {
 }
 
 GFelement_t *GFelement_get_neutral(GF_t *GF) {
-  GFelement_t *zero;
-  poly_t *poly;
-  int8_t *coeff;
-  int8_t dim;
+  GFelement_t *ret;
 
   if (!GF) {
     return NULL;
   }
 
-  dim = GF->n - 1;
-  coeff = calloc(dim, sizeof(*coeff));
-  poly = poly_init(0, coeff);
+  int8_t dim = GF->n;
+  int8_t *coeff = calloc(dim, sizeof(*coeff));
+  poly_t *poly = poly_init(0, coeff, dim);
 
   if (!coeff || !poly) {
     return NULL;
   }
 
-  zero->GF = GF;
-  zero->poly = poly;
+  ret->GF = GF;
+  ret->poly = poly;
 
-  return zero;
+  return ret;
 }
 
 GFelement_t *GFelement_get_unity(GF_t *GF) {
@@ -108,7 +96,7 @@ GFelement_t *GFelement_get_unity(GF_t *GF) {
     return NULL;
   }
 
-  *unity->poly->coeff = 1;
+  unity->poly->coeff[0] = 1;
 
   return unity;
 }
