@@ -22,6 +22,7 @@ GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
 
 void GFelement_destroy(GFelement_t *a) {
   poly_destroy(a->poly);
+  free(a);
   return;
 }
 
@@ -37,7 +38,8 @@ int GF_eq(const GF_t *f, const GF_t *k) {
   return ret;
 }
 
-int GFelement_add(GFelement_t *res, const GFelement_t *a, const GFelement_t *b) {
+int GFelement_add(GFelement_t *res, const GFelement_t *a,
+                  const GFelement_t *b) {
   // Invalid input.
   if (!res || !a || !b) {
     return 1;
@@ -66,17 +68,20 @@ int GFelement_add(GFelement_t *res, const GFelement_t *a, const GFelement_t *b) 
 }
 
 GFelement_t *GFelement_get_neutral(GF_t *GF) {
-  GFelement_t *ret;
-
   if (!GF) {
     return NULL;
   }
 
   int8_t dim = GF->n;
+
+  GFelement_t *ret = malloc(sizeof(*ret));
   int8_t *coeff = calloc(dim, sizeof(*coeff));
   poly_t *poly = poly_init(0, coeff, dim);
 
-  if (!coeff || !poly) {
+  if (!ret || !coeff || !poly) {
+    free(ret);
+    free(coeff);
+    poly_destroy(poly);
     return NULL;
   }
 
