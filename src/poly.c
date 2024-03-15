@@ -9,6 +9,7 @@ poly_t *poly_init(int8_t degree, int8_t *coeff, int8_t len) {
   poly_t *poly = malloc(sizeof(*poly));
 
   if (!poly || !coeff || (len < 1) || (degree < 0) || (len < (degree + 1))) {
+    poly_destroy(poly);
     return NULL;
   }
 
