@@ -1,9 +1,23 @@
 cmake_minimum_required(VERSION 3.10)
+
 project(ff-libc)
 
-# Include subdirectories
-add_subdirectory(src)
-add_subdirectory(tests)
+# Add the source files for the static library
+add_library(gflib SHARED
+    src/GF.c
+    src/poly.c
+)
+
+# Add the source files for the tests executable
+add_executable(tests
+    tests/main.c
+)
+
+# Link the shared library to the tests executable
+target_link_libraries(tests gflib)
+
+# Add compiler flags
+target_compile_options(tests PUBLIC -Wall -g)
 
 enable_testing()
 add_test(NAME gflib_tests COMMAND tests)
@@ -13,5 +27,4 @@ file(GLOB_RECURSE ALL_SOURCE_FILES *.c *.h)
 add_custom_target(format COMMAND clang-format -style=Google -i ${ALL_SOURCE_FILES})
 
 # Add Valgrind
-add_custom_target(memcheck COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./tests/tests DEPENDS tests)
-
+add_custom_target(memcheck COMMAND valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./tests DEPENDS tests)
