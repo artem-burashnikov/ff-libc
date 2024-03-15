@@ -9,7 +9,7 @@ const poly_t IGF2_2 = {.coeff = IGF2_2_coeff, .deg = 2, .len = 3};
 const GF_t GF2_2 = {.p = 2, .n = 2, .I = &IGF2_2};
 
 const int8_t IGF2_5_coeff[6] = {1, 0, 1, 0, 0, 1};
-const poly_t IGF2_5 = {.coeff = IGF2_2_coeff, .deg = 5, .len = 6};
+const poly_t IGF2_5 = {.coeff = IGF2_5_coeff, .deg = 5, .len = 6};
 const GF_t GF2_5 = {.p = 2, .n = 5, .I = &IGF2_5};
 
 MU_TEST(poly_eq_test) {
@@ -77,10 +77,23 @@ MU_TEST(gf_get_neutral_test) {
   GFelement_destroy(neutral_2_5);
 }
 
+MU_TEST(gf_get_unity_test) {
+  int8_t one_coeff_2_5[5] = {1};
+  poly_t one_2_5 = {.coeff = one_coeff_2_5, .deg = 0, .len = 5};
+
+  GFelement_t *unity_2_5 = GFelement_get_unity(&GF2_5);
+  mu_check(poly_eq(unity_2_5->GF->I, &IGF2_5));
+  mu_check(unity_2_5->poly->deg == 0);
+  mu_check(unity_2_5->poly->len == 5);
+  mu_check(poly_eq(unity_2_5->poly, &one_2_5));
+  GFelement_destroy(unity_2_5);
+}
+
 int main() {
   MU_RUN_TEST(poly_eq_test);
   MU_RUN_TEST(gf_eq_test);
   MU_RUN_TEST(gf_get_neutral_test);
+  MU_RUN_TEST(gf_get_unity_test);
   MU_REPORT();
   return MU_EXIT_CODE;
 }
