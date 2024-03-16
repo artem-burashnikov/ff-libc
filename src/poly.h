@@ -10,11 +10,25 @@ typedef struct {
 } poly_t;
 
 // Initialize a polynomial.
-poly_t *poly_init(int8_t degree, int8_t *coeff, int8_t len);
+poly_t *poly_from_array(int8_t deg, int8_t *coeff, int8_t len);
 
 // Destroy a given polynomial.
-void poly_destroy(poly_t *poly);
+void poly_destroy(poly_t *a);
 
 /* Check if two polynomials are equal.
+   Meaning they have the same degree and matching coefficients.
    Return 1 if the degree and corresponding coefficients match. */
 int poly_eq(const poly_t *a, const poly_t *b);
+
+/* Return a copy of the given polynomial. */
+poly_t *poly_cpy(const poly_t *a);
+
+/* Return a zero polynomial of the given length.*/
+poly_t *poly_create_zero(int8_t len);
+
+/* Normalize the degree (find the greatest non zero coefficient index)
+   of the given polynomial. */
+void poly_normalize_deg(poly_t *a);
+
+/* Normalize coefficients modulo p of the given polynomial. */
+void poly_normalize_coeff(int8_t p, poly_t *a);

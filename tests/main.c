@@ -2,6 +2,7 @@
 
 #include "../src/GF.h"
 #include "../src/poly.h"
+#include "../src/utils.h"
 #include "minunit.h"
 
 const int8_t IGF2_2_coeff[3] = {1, 1, 1};
@@ -29,7 +30,7 @@ MU_TEST(gf_eq_test) {
   int8_t p = 2;
   int8_t n = 2;
   int8_t coeff[] = {1, 1, 1};
-  poly_t *I = poly_init(2, coeff, 3);
+  poly_t *I = poly_from_array(2, coeff, 3);
 
   GF_t *GF2_a = GF_init(p, n, I);
   GF_t *GF2_b = GF_init(p, n, I);
@@ -54,7 +55,7 @@ MU_TEST(gf_get_neutral_test) {
   int8_t zero_coeff_2_5[5] = {0};
   poly_t zero_2_5 = {.coeff = zero_coeff_2_5, .deg = 0, .len = 5};
 
-  GFelement_t *neutral_2_2 = GFelement_get_neutral(&GF2_2);
+  GF_elem_t *neutral_2_2 = GF_elem_get_neutral(&GF2_2);
   mu_check(neutral_2_2->GF->p == 2);
   mu_check(neutral_2_2->GF->n == 2);
   mu_check(neutral_2_2->GF->I->deg == 2);
@@ -63,9 +64,9 @@ MU_TEST(gf_get_neutral_test) {
   mu_check(neutral_2_2->poly->deg == 0);
   mu_check(neutral_2_2->poly->len == 2);
   mu_check(poly_eq(neutral_2_2->poly, &zero_2_2));
-  GFelement_destroy(neutral_2_2);
+  GF_elem_destroy(neutral_2_2);
 
-  GFelement_t *neutral_2_5 = GFelement_get_neutral(&GF2_5);
+  GF_elem_t *neutral_2_5 = GF_elem_get_neutral(&GF2_5);
   mu_check(neutral_2_5->GF->p == 2);
   mu_check(neutral_2_5->GF->n == 5);
   mu_check(neutral_2_5->GF->I->deg == 5);
@@ -74,19 +75,19 @@ MU_TEST(gf_get_neutral_test) {
   mu_check(neutral_2_5->poly->deg == 0);
   mu_check(neutral_2_5->poly->len == 5);
   mu_check(poly_eq(neutral_2_5->poly, &zero_2_5));
-  GFelement_destroy(neutral_2_5);
+  GF_elem_destroy(neutral_2_5);
 }
 
 MU_TEST(gf_get_unity_test) {
   int8_t one_coeff_2_5[5] = {1};
   poly_t one_2_5 = {.coeff = one_coeff_2_5, .deg = 0, .len = 5};
 
-  GFelement_t *unity_2_5 = GFelement_get_unity(&GF2_5);
+  GF_elem_t *unity_2_5 = GF_elem_get_unity(&GF2_5);
   mu_check(poly_eq(unity_2_5->GF->I, &IGF2_5));
   mu_check(unity_2_5->poly->deg == 0);
   mu_check(unity_2_5->poly->len == 5);
   mu_check(poly_eq(unity_2_5->poly, &one_2_5));
-  GFelement_destroy(unity_2_5);
+  GF_elem_destroy(unity_2_5);
 }
 
 int main() {
