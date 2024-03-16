@@ -1,15 +1,26 @@
 #include "GF.h"
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "poly.h"
+#include "utils.h"
 
 GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
   GF_t *GF = malloc(sizeof(*GF));
+  if (!GF) {
+    return NULL;
+  }
 
-  if (!GF || !I || (n < 2) || (n > 100) || (p > 11) || (p < 2)) {
+  // Artificial constraints.
+  if ((n < 2) || (n > 100) || (p > 11) || (p < 2)) {
+    return NULL;
+  }
+
+  if (!I || !I->coeff || (I->deg >= I->len)) {
+    free(GF);
     return NULL;
   }
 
@@ -20,10 +31,19 @@ GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
   return GF;
 }
 
-void GFelement_destroy(GFelement_t *a) {
+void GF_elem_destroy(GF_elem_t *a) {
   poly_destroy(a->poly);
   free(a);
-  return;
+}
+
+void GF_elem_normalize(GF_elem_t *a) {
+  if (!a) {
+    return;
+  }
+  // First set coefficients mod p.
+  poly_normalize_coeff(a->GF->p, a->poly);
+  // Then correct the polynomial degree if necessary.
+  poly_normalize_deg(a->poly);
 }
 
 int GF_eq(const GF_t *f, const GF_t *k) {
@@ -38,69 +58,51 @@ int GF_eq(const GF_t *f, const GF_t *k) {
   return ret;
 }
 
-int GFelement_add(GFelement_t *res, const GFelement_t *a,
-                  const GFelement_t *b) {
-  // Invalid input.
-  if (!res || !a || !b) {
-    return 1;
-  }
-
-  // Different fields.
-  if (!GF_eq(res->GF, a->GF) && !GF_eq(res->GF, b->GF)) {
-    return 1;
-  }
-
-  // Dimension of the field extension.
-  int8_t n = a->GF->n;
-
-  // Characteristic of the field.
-  int8_t p = res->GF->p;
-
-  int8_t *w = res->poly->coeff;
-  int8_t *u = a->poly->coeff;
-  int8_t *v = b->poly->coeff;
-
-  for (size_t i = 0; i < n; ++i) {
-    w[i] = (u[i] + v[i]) % p;
-  }
-
-  return 0;
-}
-
-GFelement_t *GFelement_get_neutral(GF_t *GF) {
+GF_elem_t *GF_elem_get_neutral(GF_t *GF) {
   if (!GF) {
     return NULL;
   }
 
   int8_t dim = GF->n;
 
-  GFelement_t *ret = malloc(sizeof(*ret));
+  GF_elem_t *neutral = malloc(sizeof(*neutral));
   int8_t *coeff = calloc(dim, sizeof(*coeff));
-  poly_t *poly = poly_init(0, coeff, dim);
+  poly_t *poly = poly_from_array(0, coeff, dim);
 
-  if (!ret || !coeff || !poly) {
-    free(ret);
+  if (!neutral || !coeff || !poly) {
+    free(neutral);
     free(coeff);
     poly_destroy(poly);
     return NULL;
   }
 
-  ret->GF = GF;
-  ret->poly = poly;
+  neutral->GF = GF;
+  neutral->poly = poly;
 
-  return ret;
+  return neutral;
 }
 
-GFelement_t *GFelement_get_unity(GF_t *GF) {
+GF_elem_t *GF_elem_get_unity(GF_t *GF) {
   /* Get neutral and set the least significant digit to one. */
-  GFelement_t *unity = GFelement_get_neutral(GF);
+  GF_elem_t *unity = GF_elem_get_neutral(GF);
 
   if (!unity || !GF || (GF->n < 1)) {
-    GFelement_destroy(unity);
+    GF_elem_destroy(unity);
     return NULL;
   }
 
-  unity->poly->coeff[0] = 1;
+  *unity->poly->coeff = 1;
 
   return unity;
+}
+
+int GF_elem_get_complement(GF_elem_t *res, GF_elem_t a) {
+  if (!res) {
+    return 1;
+  }
+  assert(res->poly->len == a.poly->len);
+  for (int8_t i = 0; i < a.poly->len; ++i) {
+    res->poly->coeff[i] = get_complement_mod_p(a.poly->coeff[i], a.GF->p);
+  }
+  return 0;
 }
