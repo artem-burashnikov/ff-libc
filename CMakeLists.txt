@@ -5,7 +5,12 @@ project(ff-libc)
 # Add the source files for the static library
 add_library(gflib SHARED
     src/GF.c
+    src/GF_prod.c
+    src/GF_div.c
+    src/GF_sum.c
+    src/GF_diff.c
     src/poly.c
+    src/utils.c
 )
 
 # Add the source files for the tests executable
