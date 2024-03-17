@@ -8,7 +8,7 @@
 #include "poly.h"
 #include "utils.h"
 
-GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
+GF_t *GF_init(uint8_t p, uint8_t n, poly_t *I) {
   GF_t *GF = malloc(sizeof(*GF));
   if (!GF) {
     return NULL;
@@ -16,6 +16,7 @@ GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
 
   // Artificial constraints.
   if ((n < 2) || (n > 100) || (p > 11) || (p < 2)) {
+    free(GF);
     return NULL;
   }
 
@@ -37,15 +38,29 @@ void GF_elem_destroy(GF_elem_t *a) {
   free(a);
 }
 
-void GF_elem_normalize(GF_elem_t *a) {
-  if (!a) {
-    return;
+#if 0
+int GF_elem_normalize(GF_elem_t *a) {
+  if (!a || !a->GF || !a->poly || (a->poly->len != a->GF->n)) {
+    return 1;
   }
-  // First set coefficients mod p.
-  poly_normalize_coeff(a->GF->p, a->poly);
-  // Then correct the polynomial degree if necessary.
+
+  // Normalize coefficients mod p and deg.
+  poly_normalize_coeff(a->poly, a->GF->p);
   poly_normalize_deg(a->poly);
+
+  /* Then normalize a over GF(p)[X]/(I) setting a = a mod I. */
+  // If deg a < deg I: q = 0, r = a.
+  if (a->poly->deg < a->GF->I->deg) {
+    return 0;
+  }
+
+  // At this point deg a >= deg I
+  poly_long_div(a->poly, *a->GF->I, a->GF->p);
+  assert(a->poly->deg == (a->GF->I->deg - 1));
+
+  return 0;
 }
+#endif
 
 int GF_eq(const GF_t *f, const GF_t *k) {
   // Irreducible polynomials must match.
@@ -59,22 +74,48 @@ int GF_eq(const GF_t *f, const GF_t *k) {
   return ret;
 }
 
-GF_elem_t GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t GF) { ; }
+GF_elem_t *GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t *GF) {
+  if (!coeff || !len || !GF) {
+    return NULL;
+  }
+
+  if (!GF->I || !GF->I->coeff || (GF->I->deg < 2)) {
+    return NULL;
+  }
+
+  GF_elem_t *a = malloc(sizeof(*a));
+  poly_t *poly = poly_from_array(len - 1, coeff, len);
+  if (!a || !poly) {
+    free(a);
+    free(poly);
+    return NULL;
+  }
+
+  poly_normalize_coeff(poly, GF->p);
+  poly_normalize_deg(poly);
+
+  if (poly->deg >= GF->I->deg) {
+    poly_long_div(poly, *GF->I, GF->p);
+  }
+
+  a->GF = GF;
+  a->poly = poly;
+
+  return a;
+}
 
 GF_elem_t *GF_elem_get_neutral(GF_t *GF) {
   if (!GF) {
     return NULL;
   }
 
-  int8_t dim = GF->n;
-
   GF_elem_t *neutral = malloc(sizeof(*neutral));
-  int8_t *coeff = calloc(dim, sizeof(*coeff));
-  poly_t *poly = poly_from_array(0, coeff, dim);
+  int8_t coeff[GF->n];
+  memset(coeff, 0, GF->n);
+  poly_t *poly = poly_from_array(0, coeff, GF->n);
 
-  if (!neutral || !coeff || !poly) {
+  if (!neutral || !poly) {
     free(neutral);
-    free(coeff);
     poly_destroy(poly);
     return NULL;
   }
