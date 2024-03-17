@@ -96,7 +96,7 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, int8_t len, GF_t *GF) {
   poly_normalize_deg(poly);
 
   if (poly->deg >= GF->I->deg) {
-    poly_long_div(poly, *GF->I, GF->p);
+    poly_carryless_div(poly, *GF->I, GF->p);
   }
 
   // Normalize array length.

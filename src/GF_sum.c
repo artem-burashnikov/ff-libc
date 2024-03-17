@@ -6,7 +6,7 @@
 #include "utils.h"
 
 int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
-  if (!res) {
+  if (!res || res->poly->len!= a.poly->len || a.poly->len != b.poly->len) {
     return 1;
   }
 
@@ -15,11 +15,7 @@ int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
     return 1;
   }
 
-  for (size_t i = 0; i < res->GF->n; ++i) {
-    res->poly->coeff[i] = (a.poly->coeff[i] + b.poly->coeff[i]) % res->GF->p;
-  }
-
-  poly_normalize_coeff(res->poly, res->GF->p);
-  poly_normalize_deg(res->poly);
+  poly_carryless_sum(res->poly, *a.poly, *b.poly, res->GF->p);
+  
   return 0;
 }

@@ -115,7 +115,24 @@ void poly_normalize_coeff(poly_t *a, int8_t p) {
   }
 }
 
-int poly_long_div(poly_t *a, poly_t b, int8_t p) {
+/* Set res = a + b, where a and b are polynomials over Fp. */
+int poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p) {
+  if (!res) {
+    return 1;
+  }
+
+  // Assume a.len == b.len == res.len
+  for (size_t i = 0; i < res->len; ++i) {
+    res->coeff[i] = (a.coeff[i] + b.coeff[i]) % p;
+  }
+
+  poly_normalize_coeff(res, p);
+  poly_normalize_deg(res);
+
+  return 0;
+}
+
+int poly_carryless_div(poly_t *a, poly_t b, int8_t p) {
   if (!a) {
     return 1;
   }
@@ -136,5 +153,29 @@ int poly_long_div(poly_t *a, poly_t b, int8_t p) {
 
   poly_normalize_deg(a);
   assert(a->deg == (b.deg - 1));
+  return 0;
+}
+
+// Assume res length is sufficient.
+int poly_carryless_mul(poly_t *res, poly_t a, poly_t b, poly_t I, int8_t p) {
+  if (!res) {
+    return NULL;
+  }
+
+  /* Assume a.len == b.len */
+  assert(a.len == b.len);
+  for (size_t i = 0; i < a.len; ++i) {
+    for (size_t j = 0; j < b.len; ++j) {
+      if (a.coeff[i] == 0) {
+        break;
+      }
+      res->coeff[i+j] = (a.coeff[i] * b.coeff[j]) % p;
+    }
+  }
+
+  poly_normalize_coeff(res, p);
+  poly_normalize_deg(res);
+  poly_carryless_div(res, I, p);
+
   return 0;
 }

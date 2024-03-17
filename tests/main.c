@@ -94,7 +94,7 @@ MU_TEST(poly_div_test_case1) {
   int8_t arr2[10] = {0, 0, 1, 0, 1, 0, 0, 0, 1, 0};
   poly_t *b = poly_from_array(8, arr2, n);
 
-  poly_long_div(b, *a, p);
+  poly_carryless_div(b, *a, p);
   mu_check(b->deg == 0);
   mu_check(*b->coeff == 3);
 
@@ -117,7 +117,7 @@ MU_TEST(poly_div_test_case2) {
   int8_t arr2[10] = {1, 1, 4, 0, 0, 0, 0, 0, 0, 0};
   poly_t *b = poly_from_array(2, arr2, n);
 
-  poly_long_div(a, *b, p);
+  poly_carryless_div(a, *b, p);
   mu_check(a->deg == 1);
   mu_check(a->coeff[0] == 0);
   mu_check(a->coeff[1] == 3);
