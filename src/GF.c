@@ -2,13 +2,14 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "poly.h"
 #include "utils.h"
 
-GF_t *GF_init(uint8_t p, uint8_t n, poly_t *I) {
+GF_t *GF_init(uint8_t p, size_t n, poly_t *I) {
   GF_t *GF = malloc(sizeof(*GF));
   if (!GF) {
     return NULL;
@@ -62,20 +63,20 @@ int GF_elem_normalize(GF_elem_t *a) {
 }
 #endif
 
-int GF_eq(const GF_t *f, const GF_t *k) {
+int GF_eq(const GF_t *F, const GF_t *K) {
   // Irreducible polynomials must match.
-  int8_t ret = poly_eq(f->I, k->I);
+  int8_t ret = poly_eq(F->I, K->I);
 
   // Characteristics of fields and dimensions of extensions must match.
-  if (f->p != k->p || f->n != k->n) {
+  if (F->p != K->p || F->n != K->n) {
     ret = 0;
   }
 
   return ret;
 }
 
-GF_elem_t *GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t *GF) {
-  if (!coeff || !len || !GF) {
+GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
+  if (!coeff || !len || !GF ) {
     return NULL;
   }
 
@@ -87,7 +88,7 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t *GF) {
   poly_t *poly = poly_from_array(len - 1, coeff, len);
   if (!a || !poly) {
     free(a);
-    free(poly);
+    poly_destroy(poly);
     return NULL;
   }
 
@@ -96,6 +97,24 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t *GF) {
 
   if (poly->deg >= GF->I->deg) {
     poly_long_div(poly, *GF->I, GF->p);
+  }
+
+  // Normalize array length.
+  if (len != GF->n) {
+    int8_t *tmp = realloc(poly->coeff, sizeof(*tmp) * GF->n);
+    if (!tmp) {
+      free(a);
+      poly_destroy(poly);
+      return NULL;
+    }
+    
+    // If we added any blocks, then need to initialize.
+    if (len < GF->n) {
+      memset(tmp + len, 0, sizeof(*tmp) * (GF->n - len));
+    }
+
+    poly->coeff = tmp;
+    poly->len = GF->n;
   }
 
   a->GF = GF;
@@ -111,7 +130,7 @@ GF_elem_t *GF_elem_get_neutral(GF_t *GF) {
 
   GF_elem_t *neutral = malloc(sizeof(*neutral));
   int8_t coeff[GF->n];
-  memset(coeff, 0, GF->n);
+  memset(coeff, 0, sizeof(*coeff) * GF->n);
   poly_t *poly = poly_from_array(0, coeff, GF->n);
 
   if (!neutral || !poly) {
@@ -145,7 +164,7 @@ int GF_elem_get_complement(GF_elem_t *res, GF_elem_t a) {
     return 1;
   }
   assert(res->poly->len == a.poly->len);
-  for (int8_t i = 0; i < a.poly->len; ++i) {
+  for (size_t i = 0; i < a.poly->len; ++i) {
     res->poly->coeff[i] = get_complement_mod_p(a.poly->coeff[i], a.GF->p);
   }
   return 0;

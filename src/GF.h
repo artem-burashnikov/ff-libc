@@ -1,13 +1,14 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 #include "poly.h"
 
 // Galois field.
 typedef struct {
-  uint8_t p;   // Characteristic of the field GF(p).
-  uint8_t n;   // Dimension of the field extension.
+  uint8_t p;  // Characteristic of the field GF(p).
+  size_t n;   // Dimension of the field extension.
   poly_t *I;  // Irreducible polynomial over GF(p)[X] of degree n.
 } GF_t;
 
@@ -18,11 +19,11 @@ typedef struct {
 } GF_elem_t;
 
 /* Initialize a quotient field. */
-GF_t *GF_init(uint8_t p, uint8_t n, poly_t *I);
+GF_t *GF_init(uint8_t p, size_t n, poly_t *I);
 
 /* Given an array of coefficients of the specified length and GF(p)[x]/(I),
    Return an element over that field. */
-GF_elem_t *GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t *GF);
+GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF);
 
 /* Destroy a given element of the Galois Field.
    The field itself is left untouched. */
@@ -30,7 +31,7 @@ void GF_elem_destroy(GF_elem_t *a);
 
 /* Return 1 if the given fields are equal.
    Meaning they have the same characteristic and irreducible polynomials. */
-int GF_eq(const GF_t *f, const GF_t *k);
+int GF_eq(const GF_t *F, const GF_t *K);
 
 /* res = a + b mod (I). Return 0 on success. */
 int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
