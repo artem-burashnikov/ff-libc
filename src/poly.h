@@ -1,16 +1,17 @@
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 
 // Polynomial.
 typedef struct {
   uint8_t deg;    // Degree of polynomial.
   int8_t *coeff;  // Array of coefficients.
-  uint8_t len;    // Length of the array of coefficients.
+  size_t len;     // Length of the array of coefficients.
 } poly_t;
 
 // Initialize a polynomial.
-poly_t *poly_from_array(uint8_t deg, int8_t *coeff, uint8_t len);
+poly_t *poly_from_array(uint8_t deg, int8_t *coeff, size_t len);
 
 // Destroy a given polynomial.
 void poly_destroy(poly_t *a);
@@ -20,11 +21,8 @@ void poly_destroy(poly_t *a);
    Return 1 if the degree and corresponding coefficients match. */
 int poly_eq(const poly_t *a, const poly_t *b);
 
-/* Return a copy of the given polynomial. */
-poly_t *poly_cpy(const poly_t *a);
-
 /* Return a zero polynomial of the given length.*/
-poly_t *poly_create_zero(uint8_t len);
+poly_t *poly_create_zero(size_t len);
 
 /* Set a = a mod b, where a and b are polynomials over Fp.
    Assume deg a >= deg b. */

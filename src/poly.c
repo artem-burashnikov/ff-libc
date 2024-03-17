@@ -2,12 +2,13 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "utils.h"
 
-poly_t *poly_from_array(uint8_t deg, int8_t *coeff, uint8_t len) {
+poly_t *poly_from_array(uint8_t deg, int8_t *coeff, size_t len) {
   if (!coeff || !len || (deg >= len)) {
     return NULL;
   }
@@ -22,7 +23,7 @@ poly_t *poly_from_array(uint8_t deg, int8_t *coeff, uint8_t len) {
   }
 
   poly->deg = deg;
-  poly->coeff = memcpy(poly_coeff, coeff, len);
+  poly->coeff = memcpy(poly_coeff, coeff, len * sizeof(*poly_coeff));
   poly->len = len;
 
   return poly;
@@ -43,7 +44,7 @@ int poly_eq(const poly_t *a, const poly_t *b) {
   /* Polynomials of the same degree may have different array lengths.
      Leading zero coefficients don't matter in that case.
      So we only check coefficients up to the minimal length. */
-  int8_t n = MIN(a->len, b->len);
+  size_t n = MIN(a->len, b->len);
 
   for (size_t i = 0; i < n; ++i) {
     if (a->coeff[i] == b->coeff[i]) {
@@ -55,6 +56,7 @@ int poly_eq(const poly_t *a, const poly_t *b) {
   return 1;
 }
 
+#if 0
 poly_t *poly_cpy(const poly_t *a) {
   if (!a) {
     return NULL;
@@ -77,14 +79,15 @@ poly_t *poly_cpy(const poly_t *a) {
 
   return res;
 }
+#endif
 
-poly_t *poly_create_zero(uint8_t len) {
+poly_t *poly_create_zero(size_t len) {
   if (!len) {
     return NULL;
   }
   // A zero polynomial of degree 0 is a 0-filled array of the given length.
   int8_t res_coeff[len];
-  memset(res_coeff, 0, len);
+  memset(res_coeff, 0, sizeof(*res_coeff) * len);
   poly_t *res = poly_from_array(0, res_coeff, len);
 
   return res;
