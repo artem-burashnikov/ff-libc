@@ -166,7 +166,7 @@ int poly_carryless_mul(poly_t *res, poly_t a, poly_t b, poly_t I, int8_t p) {
       if (a.coeff[i] == 0) {
         break;
       }
-      res->coeff[i+j] = (a.coeff[i] * b.coeff[j]) % p;
+      res->coeff[i + j] = (a.coeff[i] * b.coeff[j]) % p;
     }
   }
 

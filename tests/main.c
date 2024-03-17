@@ -15,7 +15,7 @@ int8_t IGF2_5_coeff[6] = {1, 0, 1, 0, 0, 1};
 poly_t IGF2_5 = {.coeff = IGF2_5_coeff, .deg = 5, .len = 6};
 GF_t GF2_5 = {.p = 2, .n = 5, .I = &IGF2_5};
 
-//x^4 + 5x^2 + 4x + 3
+// x^4 + 5x^2 + 4x + 3
 int8_t IGF7_4_coeff[5] = {3, 4, 5, 0, 1};
 poly_t IGF7_4 = {.coeff = IGF7_4_coeff, .deg = 4, .len = 5};
 GF_t GF7_4 = {.p = 7, .n = 4, .I = &IGF7_4};
@@ -346,7 +346,7 @@ MU_TEST_SUITE(gf_tests) {
   MU_RUN_TEST(gf_elem_from_array_test4);
 }
 
-MU_TEST_SUITE(gf_arithmetic_tests) { 
+MU_TEST_SUITE(gf_arithmetic_tests) {
   MU_RUN_TEST(gf_sum_test1);
   MU_RUN_TEST(gf_sum_test2);
   MU_RUN_TEST(gf_diff_test1);

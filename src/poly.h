@@ -5,7 +5,7 @@
 
 // Polynomial.
 typedef struct {
-  int8_t deg;    // Degree of polynomial.
+  int8_t deg;     // Degree of polynomial.
   int8_t *coeff;  // Array of coefficients.
   int8_t len;     // Length of the array of coefficients.
 } poly_t;
@@ -28,7 +28,7 @@ poly_t *poly_create_zero(int8_t len);
 int poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p);
 
 /* Set a = a mod b, where a and b are polynomials over Fp.
-   Assume deg a >= deg b. 
+   Assume deg a >= deg b.
    Notice that a's original coefficients are lost after the operation. */
 int poly_carryless_div(poly_t *a, poly_t b, int8_t p);
 

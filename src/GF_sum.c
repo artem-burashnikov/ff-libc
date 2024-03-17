@@ -6,7 +6,7 @@
 #include "utils.h"
 
 int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
-  if (!res || res->poly->len!= a.poly->len || a.poly->len != b.poly->len) {
+  if (!res || res->poly->len != a.poly->len || a.poly->len != b.poly->len) {
     return 1;
   }
 
