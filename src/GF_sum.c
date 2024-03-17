@@ -6,29 +6,20 @@
 #include "utils.h"
 
 int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
-  GF_elem_t h = *res;
-
-  // Different fields.
-  if (!GF_eq(h.GF, a.GF) && !GF_eq(h.GF, b.GF)) {
+  if (!res) {
     return 1;
   }
 
-  // Dimension of the field extension.
-  size_t n = a.GF->n;
-
-  // Characteristic of the field.
-  uint8_t p = h.GF->p;
-
-  int8_t *w = h.poly->coeff;
-  int8_t *u = a.poly->coeff;
-  int8_t *v = b.poly->coeff;
-
-  for (size_t i = 0; i < n; ++i) {
-    assert(u[i] >= 0);
-    assert(v[i] >= 0);
-    w[i] = (u[i] + v[i]) % p;
+  // Different fields.
+  if (!GF_eq(res->GF, a.GF) && !GF_eq(res->GF, b.GF)) {
+    return 1;
   }
 
+  for (size_t i = 0; i < res->GF->n; ++i) {
+    res->poly->coeff[i] = (a.poly->coeff[i] + b.poly->coeff[i]) % res->GF->p;
+  }
+
+  poly_normalize_coeff(res->poly, res->GF->p);
   poly_normalize_deg(res->poly);
   return 0;
 }
