@@ -9,7 +9,7 @@
 #include "poly.h"
 #include "utils.h"
 
-GF_t *GF_init(uint8_t p, size_t n, poly_t *I) {
+GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
   GF_t *GF = malloc(sizeof(*GF));
   if (!GF) {
     return NULL;
@@ -75,8 +75,8 @@ int GF_eq(const GF_t *F, const GF_t *K) {
   return ret;
 }
 
-GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
-  if (!coeff || !len || !GF) {
+GF_elem_t *GF_elem_from_array(int8_t *coeff, int8_t len, GF_t *GF) {
+  if (!coeff || (len <= 0) || !GF) {
     return NULL;
   }
 
@@ -163,8 +163,7 @@ int GF_elem_get_complement(GF_elem_t *res, GF_elem_t a) {
   if (!res) {
     return 1;
   }
-  assert(res->poly->len == a.poly->len);
-  for (size_t i = 0; i < a.poly->len; ++i) {
+  for (size_t i = 0; i < a.GF->n; ++i) {
     res->poly->coeff[i] = get_complement_mod_p(a.poly->coeff[i], a.GF->p);
   }
   return 0;

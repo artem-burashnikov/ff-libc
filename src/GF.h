@@ -7,8 +7,8 @@
 
 // Galois field.
 typedef struct {
-  uint8_t p;  // Characteristic of the field GF(p).
-  size_t n;   // Dimension of the field extension.
+  int8_t p;  // Characteristic of the field GF(p).
+  int8_t n;   // Dimension of the field extension.
   poly_t *I;  // Irreducible polynomial over GF(p)[X] of degree n.
 } GF_t;
 
@@ -19,11 +19,11 @@ typedef struct {
 } GF_elem_t;
 
 /* Initialize a quotient field. */
-GF_t *GF_init(uint8_t p, size_t n, poly_t *I);
+GF_t *GF_init(int8_t p, int8_t n, poly_t *I);
 
 /* Given an array of coefficients of the specified length and GF(p)[x]/(I),
    Return an element over that field. */
-GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF);
+GF_elem_t *GF_elem_from_array(int8_t *coeff, int8_t len, GF_t *GF);
 
 /* Destroy a given element of the Galois Field.
    The field itself is left untouched. */

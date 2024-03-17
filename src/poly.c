@@ -8,8 +8,8 @@
 
 #include "utils.h"
 
-poly_t *poly_from_array(uint8_t deg, int8_t *coeff, size_t len) {
-  if (!coeff || !len || (deg >= len)) {
+poly_t *poly_from_array(int8_t deg, int8_t *coeff, int8_t len) {
+  if (!coeff || (len <= 0) || (deg >= len)) {
     return NULL;
   }
 
@@ -81,8 +81,8 @@ poly_t *poly_cpy(const poly_t *a) {
 }
 #endif
 
-poly_t *poly_create_zero(size_t len) {
-  if (!len) {
+poly_t *poly_create_zero(int8_t len) {
+  if (len <= 0) {
     return NULL;
   }
   // A zero polynomial of degree 0 is a 0-filled array of the given length.
@@ -94,12 +94,15 @@ poly_t *poly_create_zero(size_t len) {
 }
 
 void poly_normalize_deg(poly_t *a) {
+  size_t k;
   if (!a || (a->deg >= a->len)) {
     return;
   }
-  while ((a->deg > 0) && a->coeff[a->deg] == 0) {
-    a->deg--;
+  k = a->len - 1;
+  while ((k > 0) && a->coeff[k] == 0) {
+    k--;
   }
+  a->deg = k;
 }
 
 void poly_normalize_coeff(poly_t *a, int8_t p) {
