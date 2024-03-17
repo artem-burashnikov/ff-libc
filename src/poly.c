@@ -156,7 +156,7 @@ int poly_carryless_div(poly_t *a, poly_t b, int8_t p) {
 // Assume res length is sufficient.
 int poly_carryless_mul(poly_t *res, poly_t a, poly_t b, poly_t I, int8_t p) {
   if (!res) {
-    return NULL;
+    return 1;
   }
 
   /* Assume a.len == b.len */
