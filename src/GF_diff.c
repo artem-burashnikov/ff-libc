@@ -10,15 +10,15 @@ int GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   if (!res) {
     return 1;
   }
-  // Copy b coefficients to res.
-  memcpy(res->poly->coeff, b.poly->coeff,
-         sizeof(res->poly->coeff) * b.poly->len);
+  // Set b coefficients to their complements mod p.
+  GF_elem_get_complement(&b, b);
 
-  // Set res coefficients to their complements mod p.
-  if (!res->poly || GF_elem_get_complement(res, b)) {
-    return 1;
-  }
+  // Now calculate res = a + ~b.
+  GF_elem_sum(res, a, b);
 
-  // Now calculate res = a + complement(b) which is res = a + res.
-  return GF_elem_sum(res, a, *res);
+  // Complement b again.
+  GF_elem_get_complement(&b, b);
+
+  poly_normalize_deg(res);
+  return 0;
 }
