@@ -26,9 +26,12 @@ poly_t *poly_cpy(const poly_t *a);
 /* Return a zero polynomial of the given length.*/
 poly_t *poly_create_zero(uint8_t len);
 
+/* Set a = a mod b, where a and b are polynomials over Fp. */
+int poly_long_div(poly_t *a, poly_t b, int8_t p);
+
 /* Normalize the degree (find the greatest non zero coefficient index)
    of the given polynomial. */
 void poly_normalize_deg(poly_t *a);
 
 /* Normalize coefficients modulo p of the given polynomial. */
-void poly_normalize_coeff(int8_t p, poly_t *a);
+void poly_normalize_coeff(poly_t *a, int8_t p);

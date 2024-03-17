@@ -3,19 +3,26 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "utils.h"
 
-poly_t *poly_from_array(uint8_t degree, int8_t *coeff, uint8_t len) {
-  poly_t *poly = malloc(sizeof(*poly));
-
-  if (!poly || !coeff || !len || (degree >= len)) {
-    poly_destroy(poly);
+poly_t *poly_from_array(uint8_t deg, int8_t *coeff, uint8_t len) {
+  if (!coeff || !len || (deg >= len)) {
     return NULL;
   }
 
-  poly->deg = degree;
-  poly->coeff = coeff;
+  poly_t *poly = malloc(sizeof(*poly));
+  int8_t *poly_coeff = malloc(sizeof(*poly->coeff) * len);
+
+  if (!poly || !poly_coeff) {
+    free(poly);
+    free(poly_coeff);
+    return NULL;
+  }
+
+  poly->deg = deg;
+  poly->coeff = memcpy(poly_coeff, coeff, len);
   poly->len = len;
 
   return poly;
@@ -101,14 +108,35 @@ void poly_normalize_deg(poly_t *a) {
   }
 }
 
-void poly_normalize_coeff(int8_t p, poly_t *a) {
-  if (!a || (a->deg >= a->len) || p < 2) {
+void poly_normalize_coeff(poly_t *a, int8_t p) {
+  if (!a || (a->deg >= a->len) || (p < 2)) {
     return;
   }
 
   for (size_t i = 0; i < a->len; ++i) {
     a->coeff[i] = eu_mod(a->coeff[i], p);
   }
+}
 
-  return;
+int poly_long_div(poly_t *a, poly_t b, int8_t p) {
+  if (!a) {
+    return 1;
+  }
+
+  int8_t n = a->deg;
+  int8_t m = b.deg;
+
+  int8_t *u = a->coeff;
+  int8_t *v = b.coeff;
+
+  for (int8_t k = n - m; k >= 0; --k) {
+    int8_t q = find_q_mod_p(u[k + m], v[m], p);
+    for (int8_t i = m + k; i >= k; --i) {
+      u[i] = eu_mod(u[i] - ((q * v[i - k]) % p), p);
+    }
+  }
+
+  poly_normalize_deg(a);
+  assert(a->deg == (b.deg - 1));
+  return 0;
 }
