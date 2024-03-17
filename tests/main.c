@@ -5,13 +5,13 @@
 #include "../src/utils.h"
 #include "minunit.h"
 
-const int8_t IGF2_2_coeff[3] = {1, 1, 1};
-const poly_t IGF2_2 = {.coeff = IGF2_2_coeff, .deg = 2, .len = 3};
-const GF_t GF2_2 = {.p = 2, .n = 2, .I = &IGF2_2};
+int8_t IGF2_2_coeff[3] = {1, 1, 1};
+poly_t IGF2_2 = {.coeff = IGF2_2_coeff, .deg = 2, .len = 3};
+GF_t GF2_2 = {.p = 2, .n = 2, .I = &IGF2_2};
 
-const int8_t IGF2_5_coeff[6] = {1, 0, 1, 0, 0, 1};
-const poly_t IGF2_5 = {.coeff = IGF2_5_coeff, .deg = 5, .len = 6};
-const GF_t GF2_5 = {.p = 2, .n = 5, .I = &IGF2_5};
+int8_t IGF2_5_coeff[6] = {1, 0, 1, 0, 0, 1};
+poly_t IGF2_5 = {.coeff = IGF2_5_coeff, .deg = 5, .len = 6};
+GF_t GF2_5 = {.p = 2, .n = 5, .I = &IGF2_5};
 
 MU_TEST(poly_init_finit_test) {
   int8_t coeff_a[6] = {1, 0, 0, 40, 21, 105};
@@ -72,70 +72,6 @@ MU_TEST(poly_eq_test) {
   mu_check(!poly_eq(&a, &b));
 }
 
-MU_TEST(gf_eq_test) {
-  int8_t p = 2;
-  int8_t n = 2;
-  int8_t coeff[] = {1, 1, 1};
-  poly_t *I = poly_from_array(2, coeff, 3);
-
-  GF_t *GF2_a = GF_init(p, n, I);
-  GF_t *GF2_b = GF_init(p, n, I);
-  GF_t *GF2_c = GF_init(p + 1, n, I);
-  GF_t *GF2_d = GF_init(p, n + 1, I);
-
-  mu_check(GF_eq(GF2_a, GF2_b));
-  mu_check(!GF_eq(GF2_a, GF2_c));
-  mu_check(!GF_eq(GF2_c, GF2_d));
-
-  poly_destroy(I);
-  free(GF2_a);
-  free(GF2_b);
-  free(GF2_c);
-  free(GF2_d);
-}
-
-MU_TEST(gf_get_neutral_test) {
-  int8_t zero_coeff_2_2[2] = {0};
-  poly_t zero_2_2 = {.coeff = zero_coeff_2_2, .deg = 0, .len = 2};
-
-  int8_t zero_coeff_2_5[5] = {0};
-  poly_t zero_2_5 = {.coeff = zero_coeff_2_5, .deg = 0, .len = 5};
-
-  GF_elem_t *neutral_2_2 = GF_elem_get_neutral(&GF2_2);
-  mu_check(neutral_2_2->GF->p == 2);
-  mu_check(neutral_2_2->GF->n == 2);
-  mu_check(neutral_2_2->GF->I->deg == 2);
-  mu_check(neutral_2_2->GF->I->len == 3);
-  mu_check(poly_eq(neutral_2_2->GF->I, &IGF2_2));
-  mu_check(neutral_2_2->poly->deg == 0);
-  mu_check(neutral_2_2->poly->len == 2);
-  mu_check(poly_eq(neutral_2_2->poly, &zero_2_2));
-  GF_elem_destroy(neutral_2_2);
-
-  GF_elem_t *neutral_2_5 = GF_elem_get_neutral(&GF2_5);
-  mu_check(neutral_2_5->GF->p == 2);
-  mu_check(neutral_2_5->GF->n == 5);
-  mu_check(neutral_2_5->GF->I->deg == 5);
-  mu_check(neutral_2_5->GF->I->len == 6);
-  mu_check(poly_eq(neutral_2_5->GF->I, &IGF2_5));
-  mu_check(neutral_2_5->poly->deg == 0);
-  mu_check(neutral_2_5->poly->len == 5);
-  mu_check(poly_eq(neutral_2_5->poly, &zero_2_5));
-  GF_elem_destroy(neutral_2_5);
-}
-
-MU_TEST(gf_get_unity_test) {
-  int8_t one_coeff_2_5[5] = {1};
-  poly_t one_2_5 = {.coeff = one_coeff_2_5, .deg = 0, .len = 5};
-
-  GF_elem_t *unity_2_5 = GF_elem_get_unity(&GF2_5);
-  mu_check(poly_eq(unity_2_5->GF->I, &IGF2_5));
-  mu_check(unity_2_5->poly->deg == 0);
-  mu_check(unity_2_5->poly->len == 5);
-  mu_check(poly_eq(unity_2_5->poly, &one_2_5));
-  GF_elem_destroy(unity_2_5);
-}
-
 MU_TEST(poly_div_test_case1) {
   /* Dimension. */
   uint8_t n = 10;
@@ -183,18 +119,118 @@ MU_TEST(poly_div_test_case2) {
   poly_destroy(b);
 }
 
+MU_TEST(gf_eq_test) {
+  int8_t p = 2;
+  int8_t n = 2;
+  int8_t coeff[] = {1, 1, 1};
+  poly_t *I = poly_from_array(2, coeff, 3);
+
+  GF_t *GF2_a = GF_init(p, n, I);
+  GF_t *GF2_b = GF_init(p, n, I);
+  GF_t *GF2_c = GF_init(p + 1, n, I);
+  GF_t *GF2_d = GF_init(p, n + 1, I);
+
+  mu_check(GF_eq(GF2_a, GF2_b));
+  mu_check(!GF_eq(GF2_a, GF2_c));
+  mu_check(!GF_eq(GF2_c, GF2_d));
+
+  poly_destroy(I);
+  free(GF2_a);
+  free(GF2_b);
+  free(GF2_c);
+  free(GF2_d);
+}
+
+MU_TEST(gf_elem_from_array_test1) {
+  int8_t coeff[] = {5, 11, 20, 0, 20};
+  GF_elem_t *a = GF_elem_from_array(coeff, 5, &GF2_5);
+
+  mu_check(GF_eq(a->GF, &GF2_5));
+  mu_check(a->poly->len == 5);
+  mu_check(a->poly->deg == 1);
+  for (size_t i = 0; i < 5; ++i) {
+    mu_check(a->poly->coeff[i] == coeff[i] % 2);
+  }
+
+  GF_elem_destroy(a);
+}
+
+MU_TEST(gf_elem_from_array_test2) {
+  int8_t coeff[] = {1, 1, 0, 0, 0, 0, 0, 1};
+  GF_elem_t *a = GF_elem_from_array(coeff, 8, &GF2_5);
+
+  mu_check(GF_eq(a->GF, &GF2_5));
+  mu_check(a->poly->len == 8);
+  mu_check(a->poly->deg == 4);
+  mu_check(a->poly->coeff[0] == 1);
+  mu_check(a->poly->coeff[1] == 1);
+  mu_check(a->poly->coeff[2] == 1);
+  mu_check(a->poly->coeff[3] == 0);
+  mu_check(a->poly->coeff[4] == 1);
+
+  GF_elem_destroy(a);
+}
+
+MU_TEST(gf_get_neutral_test) {
+  int8_t zero_coeff_2_2[2] = {0};
+  poly_t zero_2_2 = {.coeff = zero_coeff_2_2, .deg = 0, .len = 2};
+
+  int8_t zero_coeff_2_5[5] = {0};
+  poly_t zero_2_5 = {.coeff = zero_coeff_2_5, .deg = 0, .len = 5};
+
+  GF_elem_t *neutral_2_2 = GF_elem_get_neutral(&GF2_2);
+  mu_check(neutral_2_2->GF->p == 2);
+  mu_check(neutral_2_2->GF->n == 2);
+  mu_check(neutral_2_2->GF->I->deg == 2);
+  mu_check(neutral_2_2->GF->I->len == 3);
+  mu_check(poly_eq(neutral_2_2->GF->I, &IGF2_2));
+  mu_check(neutral_2_2->poly->deg == 0);
+  mu_check(neutral_2_2->poly->len == 2);
+  mu_check(poly_eq(neutral_2_2->poly, &zero_2_2));
+  GF_elem_destroy(neutral_2_2);
+
+  GF_elem_t *neutral_2_5 = GF_elem_get_neutral(&GF2_5);
+  mu_check(neutral_2_5->GF->p == 2);
+  mu_check(neutral_2_5->GF->n == 5);
+  mu_check(neutral_2_5->GF->I->deg == 5);
+  mu_check(neutral_2_5->GF->I->len == 6);
+  mu_check(poly_eq(neutral_2_5->GF->I, &IGF2_5));
+  mu_check(neutral_2_5->poly->deg == 0);
+  mu_check(neutral_2_5->poly->len == 5);
+  mu_check(poly_eq(neutral_2_5->poly, &zero_2_5));
+  GF_elem_destroy(neutral_2_5);
+}
+
+MU_TEST(gf_get_unity_test) {
+  int8_t one_coeff_2_5[5] = {1};
+  poly_t one_2_5 = {.coeff = one_coeff_2_5, .deg = 0, .len = 5};
+
+  GF_elem_t *unity_2_5 = GF_elem_get_unity(&GF2_5);
+  mu_check(poly_eq(unity_2_5->GF->I, &IGF2_5));
+  mu_check(unity_2_5->poly->deg == 0);
+  mu_check(unity_2_5->poly->len == 5);
+  mu_check(poly_eq(unity_2_5->poly, &one_2_5));
+  GF_elem_destroy(unity_2_5);
+}
+
 MU_TEST_SUITE(poly_long_div_test) { 
   MU_RUN_TEST(poly_div_test_case1);
   MU_RUN_TEST(poly_div_test_case2);
 }
 
-int main() {
-  MU_RUN_TEST(poly_eq_test);
+MU_TEST_SUITE(gf_tests) {
   MU_RUN_TEST(gf_eq_test);
   MU_RUN_TEST(gf_get_neutral_test);
   MU_RUN_TEST(gf_get_unity_test);
+  MU_RUN_TEST(gf_elem_from_array_test1);
+  MU_RUN_TEST(gf_elem_from_array_test2);
+}
+
+int main() {
+  MU_RUN_TEST(poly_eq_test);
   MU_RUN_TEST(poly_init_finit_test);
   MU_RUN_SUITE(poly_long_div_test);
+  MU_RUN_SUITE(gf_tests);
   MU_REPORT();
   return MU_EXIT_CODE;
 }
