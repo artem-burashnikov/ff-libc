@@ -49,13 +49,13 @@ MU_TEST(poly_init_finit_test) {
   mu_check(a->deg == 5);
   mu_check(a->len == 6);
 
-  poly_normalize_coeff(20, a);
+  poly_normalize_coeff(a, 20);
   for (size_t i = 0; i < a->len; ++i) {
     mu_check(a->coeff[i] == coeff_a[i] % 20);
   }
 
-  free(a);
-  free(b);
+  poly_destroy(a);
+  poly_destroy(b);
   poly_destroy(c);
 }
 
@@ -87,7 +87,7 @@ MU_TEST(gf_eq_test) {
   mu_check(!GF_eq(GF2_a, GF2_c));
   mu_check(!GF_eq(GF2_c, GF2_d));
 
-  free(I);
+  poly_destroy(I);
   free(GF2_a);
   free(GF2_b);
   free(GF2_c);
