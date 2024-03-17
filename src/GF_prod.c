@@ -27,6 +27,8 @@ int GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   memmove(res->poly->coeff, res_poly->coeff, sizeof(*res_poly->coeff) * res->poly->len);
 
   poly_destroy(res_poly);
+
+  GF_elem_normalize(res);
   
   return 0;
 }

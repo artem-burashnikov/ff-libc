@@ -16,6 +16,8 @@ int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   }
 
   poly_carryless_sum(res->poly, *a.poly, *b.poly, res->GF->p);
-  
+
+  GF_elem_normalize(res);
+
   return 0;
 }

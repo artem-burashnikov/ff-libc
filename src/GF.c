@@ -39,7 +39,6 @@ void GF_elem_destroy(GF_elem_t *a) {
   free(a);
 }
 
-#if 0
 int GF_elem_normalize(GF_elem_t *a) {
   if (!a || !a->GF || !a->poly || (a->poly->len != a->GF->n)) {
     return 1;
@@ -56,12 +55,11 @@ int GF_elem_normalize(GF_elem_t *a) {
   }
 
   // At this point deg a >= deg I
-  poly_long_div(a->poly, *a->GF->I, a->GF->p);
+  poly_carryless_div(a->poly, *a->GF->I, a->GF->p);
   assert(a->poly->deg == (a->GF->I->deg - 1));
 
   return 0;
 }
-#endif
 
 int GF_eq(const GF_t *F, const GF_t *K) {
   // Irreducible polynomials must match.

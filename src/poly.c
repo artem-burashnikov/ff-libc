@@ -126,9 +126,6 @@ int poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p) {
     res->coeff[i] = (a.coeff[i] + b.coeff[i]) % p;
   }
 
-  poly_normalize_coeff(res, p);
-  poly_normalize_deg(res);
-
   return 0;
 }
 
@@ -172,10 +169,6 @@ int poly_carryless_mul(poly_t *res, poly_t a, poly_t b, poly_t I, int8_t p) {
       res->coeff[i+j] = (a.coeff[i] * b.coeff[j]) % p;
     }
   }
-
-  poly_normalize_coeff(res, p);
-  poly_normalize_deg(res);
-  poly_carryless_div(res, I, p);
 
   return 0;
 }

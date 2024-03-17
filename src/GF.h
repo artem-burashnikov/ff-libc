@@ -29,6 +29,9 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, int8_t len, GF_t *GF);
    The field itself is left untouched. */
 void GF_elem_destroy(GF_elem_t *a);
 
+/* Normalize polynomial over GF(p)[x]/(I). */
+int GF_elem_normalize(GF_elem_t *a);
+
 /* Return 1 if the given fields are equal.
    Meaning they have the same characteristic and irreducible polynomials. */
 int GF_eq(const GF_t *F, const GF_t *K);
