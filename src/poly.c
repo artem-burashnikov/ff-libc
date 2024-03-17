@@ -53,7 +53,8 @@ poly_t *poly_cpy(const poly_t *a) {
     return NULL;
   }
 
-  // Initialize a new polynomial then copy the array of coefficients from the old one.
+  /* Initialize a new polynomial then copy the array of coefficients from the
+     old one. */
   int8_t *res_coeff = malloc(sizeof(*res_coeff) * a->len);
   if (!res_coeff) {
     return NULL;

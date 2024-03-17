@@ -4,9 +4,9 @@
 
 // Polynomial.
 typedef struct {
-  uint8_t deg;   // Degree of polynomial.
-  int8_t *coeff; // Array of coefficients.
-  uint8_t len;   // Length of the array of coefficients.
+  uint8_t deg;    // Degree of polynomial.
+  int8_t *coeff;  // Array of coefficients.
+  uint8_t len;    // Length of the array of coefficients.
 } poly_t;
 
 // Initialize a polynomial.

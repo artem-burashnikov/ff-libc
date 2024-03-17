@@ -17,8 +17,12 @@ typedef struct {
   poly_t *poly;  // Element of the GF(p)/(I) quotient field.
 } GF_elem_t;
 
-// Initialize a quotient field.
+/* Initialize a quotient field. */
 GF_t *GF_init(int8_t p, int8_t n, poly_t *I);
+
+/* Get an element over the given GF quotient field.
+   Provide an array of polynomial coefficients of the specified length. */
+GF_elem_t GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t GF);
 
 /* Destroy a given element of the Galois Field.
    The field itself is left untouched. */

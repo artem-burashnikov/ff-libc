@@ -17,7 +17,7 @@ MU_TEST(poly_init_finit_test) {
   int8_t coeff_a[6] = {1, 0, 0, 40, 21, 105};
   uint8_t len_a = 6;
   uint8_t deg_a = 5;
-  
+
   int8_t coeff_b[3] = {1, 0, 0};
   uint8_t len_b = 3;
   uint8_t deg_b = 2;

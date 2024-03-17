@@ -19,6 +19,7 @@ GF_t *GF_init(int8_t p, int8_t n, poly_t *I) {
     return NULL;
   }
 
+  // Sanity check.
   if (!I || !I->coeff || (I->deg >= I->len)) {
     free(GF);
     return NULL;
@@ -57,6 +58,8 @@ int GF_eq(const GF_t *f, const GF_t *k) {
 
   return ret;
 }
+
+GF_elem_t GF_elem_from_array(int8_t *coeff, uint8_t len, GF_t GF) { ; }
 
 GF_elem_t *GF_elem_get_neutral(GF_t *GF) {
   if (!GF) {
