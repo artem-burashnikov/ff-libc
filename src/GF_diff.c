@@ -13,12 +13,11 @@ int GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   // Set b coefficients to their complements mod p.
   GF_elem_get_complement(&b, b);
 
-  // Now calculate res = a + ~b.
+  // Now calculate res = a + ~b. res is normalized in sum.
   GF_elem_sum(res, a, b);
 
   // Complement b again.
   GF_elem_get_complement(&b, b);
 
-  poly_normalize_deg(res);
   return 0;
 }
