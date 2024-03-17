@@ -160,13 +160,45 @@ MU_TEST(gf_elem_from_array_test2) {
   GF_elem_t *a = GF_elem_from_array(coeff, 8, &GF2_5);
 
   mu_check(GF_eq(a->GF, &GF2_5));
-  mu_check(a->poly->len == 8);
+  mu_check(a->poly->len == 5);
   mu_check(a->poly->deg == 4);
   mu_check(a->poly->coeff[0] == 1);
   mu_check(a->poly->coeff[1] == 1);
   mu_check(a->poly->coeff[2] == 1);
   mu_check(a->poly->coeff[3] == 0);
   mu_check(a->poly->coeff[4] == 1);
+
+  GF_elem_destroy(a);
+}
+
+MU_TEST(gf_elem_from_array_test3) {
+  int8_t coeff[] = {1, 1};
+  GF_elem_t *a = GF_elem_from_array(coeff, 2, &GF2_5);
+
+  mu_check(GF_eq(a->GF, &GF2_5));
+  mu_check(a->poly->len == 5);
+  mu_check(a->poly->deg == 1);
+  mu_check(a->poly->coeff[0] == 1);
+  mu_check(a->poly->coeff[1] == 1);
+  mu_check(a->poly->coeff[2] == 0);
+  mu_check(a->poly->coeff[3] == 0);
+  mu_check(a->poly->coeff[4] == 0);
+
+  GF_elem_destroy(a);
+}
+
+MU_TEST(gf_elem_from_array_test4) {
+  int8_t coeff[] = {1, 1, 0, 0, 0, 0, 0, 0};
+  GF_elem_t *a = GF_elem_from_array(coeff, 8, &GF2_5);
+
+  mu_check(GF_eq(a->GF, &GF2_5));
+  mu_check(a->poly->len == 5);
+  mu_check(a->poly->deg == 1);
+  mu_check(a->poly->coeff[0] == 1);
+  mu_check(a->poly->coeff[1] == 1);
+  mu_check(a->poly->coeff[2] == 0);
+  mu_check(a->poly->coeff[3] == 0);
+  mu_check(a->poly->coeff[4] == 0);
 
   GF_elem_destroy(a);
 }
@@ -213,7 +245,7 @@ MU_TEST(gf_get_unity_test) {
   GF_elem_destroy(unity_2_5);
 }
 
-MU_TEST_SUITE(poly_long_div_test) { 
+MU_TEST_SUITE(poly_long_div_test) {
   MU_RUN_TEST(poly_div_test_case1);
   MU_RUN_TEST(poly_div_test_case2);
 }
@@ -224,7 +256,11 @@ MU_TEST_SUITE(gf_tests) {
   MU_RUN_TEST(gf_get_unity_test);
   MU_RUN_TEST(gf_elem_from_array_test1);
   MU_RUN_TEST(gf_elem_from_array_test2);
+  MU_RUN_TEST(gf_elem_from_array_test3);
+  MU_RUN_TEST(gf_elem_from_array_test4);
 }
+
+MU_TEST_SUITE(gf_arithmetic_tests) { ; }
 
 int main() {
   MU_RUN_TEST(poly_eq_test);
