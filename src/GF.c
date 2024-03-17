@@ -76,7 +76,7 @@ int GF_eq(const GF_t *F, const GF_t *K) {
 }
 
 GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
-  if (!coeff || !len || !GF ) {
+  if (!coeff || !len || !GF) {
     return NULL;
   }
 
@@ -107,7 +107,7 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
       poly_destroy(poly);
       return NULL;
     }
-    
+
     // If we added any blocks, then need to initialize.
     if (len < GF->n) {
       memset(tmp + len, 0, sizeof(*tmp) * (GF->n - len));
