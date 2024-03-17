@@ -24,3 +24,25 @@ int8_t get_complement_mod_p(int8_t a, int8_t p) {
   assert(a < p);
   return (p - a) % p;
 }
+
+int8_t find_q_mod_p(int8_t x, int8_t y, int8_t p) {
+  assert(p > 1);
+  assert((y >= 0) && (x >= 0));
+  int8_t q = 0;
+  while (((y * q) % p) != x) {
+    q += 1;
+  }
+  assert(q < p);
+  return q;
+}
+
+int8_t get_inv_mod_p(int8_t d, int8_t p) {
+  assert(p > 1);
+  assert((d > 0) && (d < p));
+  int8_t res = 1;
+  while (((d * res) % p) != 1) {
+    res += 1;
+  }
+  assert(res < p);
+  return res;
+}
