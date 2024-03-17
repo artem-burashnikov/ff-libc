@@ -136,12 +136,65 @@ MU_TEST(gf_get_unity_test) {
   GF_elem_destroy(unity_2_5);
 }
 
+MU_TEST(poly_div_test_case1) {
+  /* Dimension. */
+  uint8_t n = 10;
+
+  /* Characteristic. */
+  uint8_t p = 10;
+
+  // 1 + x
+  int8_t arr1[10] = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+  poly_t *a = poly_from_array(1, arr1, n);
+
+  // x^2 + x^4 + x^8
+  int8_t arr2[10] = {0, 0, 1, 0, 1, 0, 0, 0, 1, 0};
+  poly_t *b = poly_from_array(8, arr2, n);
+
+  poly_long_div(b, *a, p);
+  mu_check(b->deg == 0);
+  mu_check(*b->coeff == 3);
+
+  poly_destroy(a);
+  poly_destroy(b);
+}
+
+MU_TEST(poly_div_test_case2) {
+  /* Dimension. */
+  uint8_t n = 10;
+
+  /* Characteristic. */
+  uint8_t p = 5;
+
+  // 2 + 3x^2
+  int8_t arr1[10] = {2, 0, 3, 0, 0, 0, 0, 0, 0, 0};
+  poly_t *a = poly_from_array(2, arr1, n);
+
+  // 1 + x + 4x^2
+  int8_t arr2[10] = {1, 1, 4, 0, 0, 0, 0, 0, 0, 0};
+  poly_t *b = poly_from_array(2, arr2, n);
+
+  poly_long_div(a, *b, p);
+  mu_check(a->deg == 1);
+  mu_check(a->coeff[0] == 0);
+  mu_check(a->coeff[1] == 3);
+
+  poly_destroy(a);
+  poly_destroy(b);
+}
+
+MU_TEST_SUITE(poly_long_div_test) { 
+  MU_RUN_TEST(poly_div_test_case1);
+  MU_RUN_TEST(poly_div_test_case2);
+}
+
 int main() {
   MU_RUN_TEST(poly_eq_test);
   MU_RUN_TEST(gf_eq_test);
   MU_RUN_TEST(gf_get_neutral_test);
   MU_RUN_TEST(gf_get_unity_test);
   MU_RUN_TEST(poly_init_finit_test);
+  MU_RUN_SUITE(poly_long_div_test);
   MU_REPORT();
   return MU_EXIT_CODE;
 }

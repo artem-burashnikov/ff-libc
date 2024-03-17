@@ -114,6 +114,7 @@ int poly_long_div(poly_t *a, poly_t b, int8_t p) {
     return 1;
   }
 
+  // Assume deg a >= deg b.
   int8_t n = a->deg;
   int8_t m = b.deg;
 
