@@ -6,10 +6,10 @@
 
 #include "utils.h"
 
-poly_t *poly_from_array(int8_t degree, int8_t *coeff, int8_t len) {
+poly_t *poly_from_array(uint8_t degree, int8_t *coeff, uint8_t len) {
   poly_t *poly = malloc(sizeof(*poly));
 
-  if (!poly || !coeff || !len || (len < 1) || (degree < 0) || (degree >= len)) {
+  if (!poly || !coeff || !len || (degree >= len)) {
     poly_destroy(poly);
     return NULL;
   }
@@ -33,6 +33,9 @@ int poly_eq(const poly_t *a, const poly_t *b) {
     return 0;
   }
 
+  /* Polynomials of the same degree may have different array lengths.
+     Leading zero coefficients don't matter in that case.
+     So we only check coefficients up to the minimal length. */
   int8_t n = MIN(a->len, b->len);
 
   for (size_t i = 0; i < n; ++i) {
@@ -50,13 +53,13 @@ poly_t *poly_cpy(const poly_t *a) {
     return NULL;
   }
 
+  // Initialize a new polynomial then copy the array of coefficients from the old one.
   int8_t *res_coeff = malloc(sizeof(*res_coeff) * a->len);
   if (!res_coeff) {
     return NULL;
   }
 
   poly_t *res = poly_from_array(a->deg, res_coeff, a->len);
-
   if (!res) {
     free(res_coeff);
     return NULL;
@@ -67,11 +70,12 @@ poly_t *poly_cpy(const poly_t *a) {
   return res;
 }
 
-poly_t *poly_create_zero(int8_t len) {
+poly_t *poly_create_zero(uint8_t len) {
   if (!len) {
     return NULL;
   }
 
+  // A zero polynomial of degree 0 is a 0-filled array of the given length.
   int8_t *res_coeff = calloc(len, sizeof(*res_coeff));
   if (!res_coeff) {
     return NULL;
@@ -88,24 +92,20 @@ poly_t *poly_create_zero(int8_t len) {
 }
 
 void poly_normalize_deg(poly_t *a) {
-  if (!a || a->deg >= a->len) {
+  if (!a || (a->deg >= a->len)) {
     return;
   }
-
-  int8_t deg = a->deg;
-  while ((deg > 0) && a->coeff[deg] == 0) {
-    --deg;
+  while ((a->deg > 0) && a->coeff[a->deg] == 0) {
+    a->deg--;
   }
-  a->deg = deg;
-  return;
 }
 
 void poly_normalize_coeff(int8_t p, poly_t *a) {
-  if (!a) {
+  if (!a || (a->deg >= a->len) || p < 2) {
     return;
   }
 
-  for (int8_t i = 0; i < a->len; ++i) {
+  for (size_t i = 0; i < a->len; ++i) {
     a->coeff[i] = eu_mod(a->coeff[i], p);
   }
 
