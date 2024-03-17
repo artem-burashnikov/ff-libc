@@ -1,9 +1,9 @@
 #include "poly.h"
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "utils.h"
 
@@ -82,19 +82,10 @@ poly_t *poly_create_zero(uint8_t len) {
   if (!len) {
     return NULL;
   }
-
   // A zero polynomial of degree 0 is a 0-filled array of the given length.
-  int8_t *res_coeff = calloc(len, sizeof(*res_coeff));
-  if (!res_coeff) {
-    return NULL;
-  }
-
+  int8_t res_coeff[len];
+  memset(res_coeff, 0, len);
   poly_t *res = poly_from_array(0, res_coeff, len);
-
-  if (!res) {
-    free(res_coeff);
-    return NULL;
-  }
 
   return res;
 }
