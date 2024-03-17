@@ -19,7 +19,7 @@ int8_t eu_mod(int8_t x, int8_t y) {
 }
 
 int8_t get_complement_mod_p(int8_t a, int8_t p) {
-  assert(a > 0);
+  assert(a >= 0);
   assert(p > 1);
   assert(a < p);
   return (p - a) % p;
