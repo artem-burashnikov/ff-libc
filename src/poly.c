@@ -8,8 +8,8 @@
 
 #include "utils.h"
 
-poly_t *poly_from_array(int8_t deg, int8_t *coeff, int8_t len) {
-  if (!coeff || (len <= 0) || (deg >= len)) {
+poly_t *poly_from_array(uint8_t deg, int8_t *coeff, size_t len) {
+  if (!coeff || (!len) || (deg >= len)) {
     return NULL;
   }
 
@@ -41,16 +41,16 @@ int poly_eq(const poly_t *a, const poly_t *b) {
     return 0;
   }
 
-  /* Polynomials of the same degree may have different array lengths.
+  /* At this point polynomials have the same degree.
+     Polynomials of the same degree may have different array lengths.
      Leading zero coefficients don't matter in that case.
-     So we only check coefficients up to the minimal length. */
-  size_t n = MIN(a->len, b->len);
-
-  for (size_t i = 0; i < n; ++i) {
-    if (a->coeff[i] == b->coeff[i]) {
-      continue;
+     So we only check coefficients up to the degree.
+     Not using memcmp, since coefficeints may be negative. */
+  assert(a->deg == b->deg);
+  for (size_t i = 0; i <= a->deg; ++i) {
+    if (a->coeff[i] != b->coeff[i]) {
+      return 0;
     }
-    return 0;
   }
 
   return 1;
@@ -81,8 +81,8 @@ poly_t *poly_cpy(const poly_t *a) {
 }
 #endif
 
-poly_t *poly_create_zero(int8_t len) {
-  if (len <= 0) {
+poly_t *poly_create_zero(size_t len) {
+  if (!len) {
     return NULL;
   }
   // A zero polynomial of degree 0 is a 0-filled array of the given length.
@@ -94,11 +94,10 @@ poly_t *poly_create_zero(int8_t len) {
 }
 
 void poly_normalize_deg(poly_t *a) {
-  size_t k;
   if (!a || (a->deg >= a->len)) {
     return;
   }
-  k = a->len - 1;
+  size_t k = a->len - 1;
   while ((k > 0) && a->coeff[k] == 0) {
     k--;
   }
@@ -115,23 +114,31 @@ void poly_normalize_coeff(poly_t *a, int8_t p) {
   }
 }
 
-/* Set res = a + b, where a and b are polynomials over Fp. */
-int poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p) {
+/* Set res = a + b, where a and b are polynomials over Fp.
+   Assume max(a.deg, b.deg) < min(a.len, b.len) */
+void poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p) {
   if (!res) {
-    return 1;
+    return;
   }
 
-  // Assume a.len == b.len == res.len
-  for (size_t i = 0; i < res->len; ++i) {
-    res->coeff[i] = (a.coeff[i] + b.coeff[i]) % p;
+  int8_t w;
+  size_t max_deg = MAX(a.deg, b.deg);
+  for (size_t i = 0; i <= max_deg; ++i) {
+    w = 0;
+    if (i <= a.deg) {
+      w += a.coeff[i];
+    }
+    if (i <= b.deg) {
+      w += b.coeff[i];
+    }
+    res->coeff[i] = eu_mod(w, p);
   }
-
-  return 0;
 }
 
-int poly_carryless_div(poly_t *a, poly_t b, int8_t p) {
+/* Set a = a mod b, where a and b are polynomials over Fp. */
+void poly_carryless_div(poly_t *a, poly_t b, int8_t p) {
   if (!a) {
-    return 1;
+    return;
   }
 
   // Assume deg a >= deg b.
@@ -141,34 +148,30 @@ int poly_carryless_div(poly_t *a, poly_t b, int8_t p) {
   int8_t *u = a->coeff;
   int8_t *v = b.coeff;
 
+  int8_t q;
   for (int8_t k = n - m; k >= 0; --k) {
-    int8_t q = find_q_mod_p(u[k + m], v[m], p);
+    q = find_q_mod_p(u[k + m], v[m], p);
     for (int8_t i = m + k; i >= k; --i) {
-      u[i] = eu_mod(u[i] - ((q * v[i - k]) % p), p);
+      u[i] = eu_mod(u[i] - (q * v[i - k]), p);
     }
   }
-
   poly_normalize_deg(a);
-  assert(a->deg == (b.deg - 1));
-  return 0;
+  assert(a->deg < b.deg);
 }
 
-// Assume res length is sufficient.
-int poly_carryless_mul(poly_t *res, poly_t a, poly_t b, poly_t I, int8_t p) {
-  if (!res) {
-    return 1;
+// Set res = a * b mod p. We guarantee res is niehter a nor b.
+void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p) {
+  if (!res || (res->len < (a.len + b.len - 2))) {
+    return;
   }
 
-  /* Assume a.len == b.len */
-  assert(a.len == b.len);
-  for (size_t i = 0; i < a.len; ++i) {
-    for (size_t j = 0; j < b.len; ++j) {
+  for (size_t i = 0; i <= a.deg; ++i) {
+    for (size_t j = 0; j <= b.deg; ++j) {
       if (a.coeff[i] == 0) {
         break;
       }
-      res->coeff[i + j] = (a.coeff[i] * b.coeff[j]) % p;
+      res->coeff[i + j] =
+          eu_mod(res->coeff[i + j] + a.coeff[i] * b.coeff[j], p);
     }
   }
-
-  return 0;
 }
