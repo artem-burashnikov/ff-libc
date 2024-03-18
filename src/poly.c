@@ -161,7 +161,7 @@ void poly_carryless_div(poly_t *a, poly_t b, int8_t p) {
 
 // Set res = a * b mod p. We guarantee res is niehter a nor b.
 void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p) {
-  if (!res || (res->len < (a.len + b.len - 2))) {
+  if (!res || (res->len < (a.deg + b.deg + 1))) {
     return;
   }
 

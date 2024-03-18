@@ -32,8 +32,11 @@ void poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p);
    Notice that a's original coefficients are lost after the operation. */
 void poly_carryless_div(poly_t *a, poly_t b, int8_t p);
 
-/* Return a new polynomial which is a * b mod (I). */
+/* Calculate res = a * b. */
 void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p);
+
+/* Calculate res = base^exp mod (I) */
+void poly_fpowm(poly_t *res, poly_t base, uint64_t exp, poly_t I);
 
 /* Normalize the degree (find the greatest non zero coefficient index)
    of the given polynomial. */
