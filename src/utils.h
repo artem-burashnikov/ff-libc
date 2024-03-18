@@ -22,4 +22,4 @@ int8_t get_inv_mod_p(int8_t d, int8_t p);
 #endif
 
 // Fast base to the exponent.
-uint8_t fpown(uint8_t base, uint8_t exp);
+uint8_t fpow(uint8_t base, uint8_t exp);

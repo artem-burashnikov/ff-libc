@@ -18,8 +18,7 @@ int8_t eu_mod(int8_t x, int8_t y) {
   return r;
 }
 
-int8_t get_complement_mod_p(int8_t a, int8_t p) {
-  assert(a >= 0);
+int8_t get_complement_mod_p(uint8_t a, uint8_t p) {
   assert(p > 1);
   assert(a < p);
   return (p - a) % p;
@@ -36,6 +35,7 @@ int8_t find_q_mod_p(int8_t x, int8_t y, int8_t p) {
   return q;
 }
 
+#if 0
 int8_t get_inv_mod_p(int8_t d, int8_t p) {
   assert(p > 1);
   assert((d > 0) && (d < p));
@@ -44,5 +44,20 @@ int8_t get_inv_mod_p(int8_t d, int8_t p) {
     res += 1;
   }
   assert(res < p);
+  return res;
+}
+#endif
+
+// Fast base to the exponent.
+uint64_t fpow(uint8_t base, uint8_t exp) {
+  uint64_t res = 1;
+  while (exp > 0) {
+    if ((exp % 2) != 0) {
+      res *= base;
+      exp = exp - 1;
+    }
+    base *= base;
+    exp = exp / 2;
+  }
   return res;
 }
