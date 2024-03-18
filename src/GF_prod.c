@@ -22,12 +22,11 @@ int GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
     return 1;
   }
 
-  // Assume coefficients are normalized: 0...(p-1)
   poly_carryless_mul(tmp, *a.poly, *b.poly, res->GF->p);
   poly_normalize_deg(tmp);
   poly_carryless_div(tmp, *res->GF->I, res->GF->p);
 
-  memmove(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * (tmp->deg + 1));
+  memcpy(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * (tmp->deg + 1));
   res->poly->deg = tmp->deg;
 
   poly_destroy(tmp);
