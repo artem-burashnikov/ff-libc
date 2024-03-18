@@ -10,6 +10,11 @@ int8_t IGF2_2_coeff[3] = {1, 1, 1};
 poly_t IGF2_2 = {.coeff = IGF2_2_coeff, .deg = 2, .len = 3};
 GF_t GF2_2 = {.p = 2, .n = 2, .I = &IGF2_2};
 
+// x^3 + x + 1
+int8_t IGF2_3_coeff[4] = {1, 1, 0, 1};
+poly_t IGF2_3 = {.coeff = IGF2_3_coeff, .deg = 3, .len = 4};
+GF_t GF2_3 = {.p = 2, .n = 3, .I = &IGF2_3};
+
 // x^5 + x^2 + 1
 int8_t IGF2_5_coeff[6] = {1, 0, 1, 0, 0, 1};
 poly_t IGF2_5 = {.coeff = IGF2_5_coeff, .deg = 5, .len = 6};
@@ -421,18 +426,112 @@ MU_TEST(gf_prod_test2) {
 }
 
 MU_TEST(poly_fpowm_test1) {
-  int8_t coeff[2] = {1, 1, 0};
-  poly_t *a = poly_from_array(1, coeff, 3);
-  poly_t *res = poly_create_zero(3);
+  int8_t coeff[2] = {1, 1};
+  poly_t *a = poly_from_array(1, coeff, 2);
+  poly_t *res = poly_create_zero(2);
   poly_fpowm(res, *a, 2, IGF2_2, 2);
 
   mu_check(res->deg = 1);
-  mu_check(res->len = 3);
+  mu_check(res->len = 2);
   mu_check(res->coeff[0] == 0);
   mu_check(res->coeff[1] == 1);
 
   poly_destroy(res);
   poly_destroy(a);
+}
+
+MU_TEST(poly_fpowm_test2) {
+  int8_t coeff[2] = {1, 1};
+  poly_t *a = poly_from_array(1, coeff, 2);
+  poly_t *res = poly_create_zero(2);
+  poly_fpowm(res, *a, 2, IGF2_2, 2);
+
+  mu_check(res->deg = 1);
+  mu_check(res->len = 2);
+  mu_check(res->coeff[0] == 0);
+  mu_check(res->coeff[1] == 1);
+
+  poly_destroy(res);
+  poly_destroy(a);
+}
+
+MU_TEST(gf_get_inverse) {
+  int8_t coeff_a[3] = {1, 0, 0};
+  GF_elem_t *a = GF_elem_from_array(coeff_a, 3, &GF2_3);
+  GF_elem_t *inv_a = GF_elem_get_inverse(*a);
+  mu_check(inv_a->poly->len == 3);
+  mu_check(inv_a->poly->deg == 0);
+  mu_check(inv_a->poly->coeff[0] == 1);
+  mu_check(inv_a->poly->coeff[1] == 0);
+  mu_check(inv_a->poly->coeff[2] == 0);
+  GF_elem_destroy(a);
+  GF_elem_destroy(inv_a);
+
+  int8_t coeff_b[3] = {0, 1, 0};
+  GF_elem_t *b = GF_elem_from_array(coeff_b, 3, &GF2_3);
+  GF_elem_t *inv_b = GF_elem_get_inverse(*b);
+  mu_check(inv_b->poly->len == 3);
+  mu_check(inv_b->poly->deg == 2);
+  mu_check(inv_b->poly->coeff[0] == 1);
+  mu_check(inv_b->poly->coeff[1] == 0);
+  mu_check(inv_b->poly->coeff[2] == 1);
+  GF_elem_destroy(b);
+  GF_elem_destroy(inv_b);
+
+  int8_t coeff_c[3] = {0, 0, 1};
+  GF_elem_t *c = GF_elem_from_array(coeff_c, 3, &GF2_3);
+  GF_elem_t *inv_c = GF_elem_get_inverse(*c);
+  mu_check(inv_c->poly->len == 3);
+  mu_check(inv_c->poly->deg == 2);
+  mu_check(inv_c->poly->coeff[0] == 1);
+  mu_check(inv_c->poly->coeff[1] == 1);
+  mu_check(inv_c->poly->coeff[2] == 1);
+  GF_elem_destroy(c);
+  GF_elem_destroy(inv_c);
+
+  int8_t coeff_d[3] = {1, 1, 0};
+  GF_elem_t *d = GF_elem_from_array(coeff_d, 3, &GF2_3);
+  GF_elem_t *inv_d = GF_elem_get_inverse(*d);
+  mu_check(inv_d->poly->len == 3);
+  mu_check(inv_d->poly->deg == 2);
+  mu_check(inv_d->poly->coeff[0] == 0);
+  mu_check(inv_d->poly->coeff[1] == 1);
+  mu_check(inv_d->poly->coeff[2] == 1);
+  GF_elem_destroy(d);
+  GF_elem_destroy(inv_d);
+
+  int8_t coeff_e[3] = {1, 0, 1};
+  GF_elem_t *e = GF_elem_from_array(coeff_e, 3, &GF2_3);
+  GF_elem_t *inv_e = GF_elem_get_inverse(*e);
+  mu_check(inv_e->poly->len == 3);
+  mu_check(inv_e->poly->deg == 1);
+  mu_check(inv_e->poly->coeff[0] == 0);
+  mu_check(inv_e->poly->coeff[1] == 1);
+  mu_check(inv_e->poly->coeff[2] == 0);
+  GF_elem_destroy(e);
+  GF_elem_destroy(inv_e);
+
+  int8_t coeff_f[3] = {0, 1, 1};
+  GF_elem_t *f = GF_elem_from_array(coeff_f, 3, &GF2_3);
+  GF_elem_t *inv_f = GF_elem_get_inverse(*f);
+  mu_check(inv_f->poly->len == 3);
+  mu_check(inv_f->poly->deg == 1);
+  mu_check(inv_f->poly->coeff[0] == 1);
+  mu_check(inv_f->poly->coeff[1] == 1);
+  mu_check(inv_f->poly->coeff[2] == 0);
+  GF_elem_destroy(f);
+  GF_elem_destroy(inv_f);
+
+  int8_t coeff_g[3] = {1, 1, 1};
+  GF_elem_t *g = GF_elem_from_array(coeff_g, 3, &GF2_3);
+  GF_elem_t *inv_g = GF_elem_get_inverse(*g);
+  mu_check(inv_g->poly->len == 3);
+  mu_check(inv_g->poly->deg == 2);
+  mu_check(inv_g->poly->coeff[0] == 0);
+  mu_check(inv_g->poly->coeff[1] == 0);
+  mu_check(inv_g->poly->coeff[2] == 1);
+  GF_elem_destroy(g);
+  GF_elem_destroy(inv_g);
 }
 
 MU_TEST_SUITE(gf_tests) {
@@ -443,6 +542,7 @@ MU_TEST_SUITE(gf_tests) {
   MU_RUN_TEST(gf_elem_from_array_test2);
   MU_RUN_TEST(gf_elem_from_array_test3);
   MU_RUN_TEST(gf_elem_from_array_test4);
+  MU_RUN_TEST(gf_get_inverse);
 }
 
 MU_TEST_SUITE(gf_arithmetic_tests) {
@@ -457,6 +557,7 @@ MU_TEST_SUITE(gf_arithmetic_tests) {
   MU_RUN_TEST(gf_prod_test1);
   MU_RUN_TEST(gf_prod_test2);
   MU_RUN_TEST(poly_fpowm_test1);
+  MU_RUN_TEST(poly_fpowm_test2);
 }
 
 int main() {
