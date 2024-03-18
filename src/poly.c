@@ -14,16 +14,16 @@ poly_t *poly_from_array(uint8_t deg, int8_t *coeff, size_t len) {
   }
 
   poly_t *poly = malloc(sizeof(*poly));
-  int8_t *poly_coeff = malloc(sizeof(*poly->coeff) * len);
+  int8_t *tmp = malloc(sizeof(*poly->coeff) * len);
 
-  if (!poly || !poly_coeff) {
+  if (!poly || !tmp) {
     free(poly);
-    free(poly_coeff);
+    free(tmp);
     return NULL;
   }
 
   poly->deg = deg;
-  poly->coeff = memcpy(poly_coeff, coeff, len * sizeof(*poly_coeff));
+  poly->coeff = memcpy(tmp, coeff, len * sizeof(*tmp));
   poly->len = len;
 
   return poly;
@@ -56,39 +56,16 @@ int poly_eq(const poly_t *a, const poly_t *b) {
   return 1;
 }
 
-#if 0
-poly_t *poly_cpy(const poly_t *a) {
-  if (!a) {
-    return NULL;
-  }
-
-  /* Initialize a new polynomial then copy the array of coefficients from the
-     old one. */
-  int8_t *res_coeff = malloc(sizeof(*res_coeff) * a->len);
-  if (!res_coeff) {
-    return NULL;
-  }
-
-  poly_t *res = poly_from_array(a->deg, res_coeff, a->len);
-  if (!res) {
-    free(res_coeff);
-    return NULL;
-  }
-
-  memcpy(res->coeff, a->coeff, a->len);
-
-  return res;
-}
-#endif
-
 poly_t *poly_create_zero(size_t len) {
   if (!len) {
     return NULL;
   }
   // A zero polynomial of degree 0 is a 0-filled array of the given length.
-  int8_t res_coeff[len];
-  memset(res_coeff, 0, sizeof(*res_coeff) * len);
-  poly_t *res = poly_from_array(0, res_coeff, len);
+  int8_t *tmp = calloc(len, sizeof(*tmp));
+
+  poly_t *res = poly_from_array(0, tmp, len);
+
+  free(tmp);
 
   return res;
 }
@@ -178,27 +155,29 @@ void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p) {
   }
 }
 
-void poly_fpowm(poly_t *res, poly_t base, uint64_t exp, poly_t I, int8_t p) {
+// Assume a.len = res.len = I.deg
+void poly_fpowm(poly_t *res, poly_t a, uint64_t exp, poly_t I, int8_t p) {
   if (!res) {
     return;
   }
 
+  int8_t *tmp = NULL;
+  poly_t *base = poly_from_array(a.deg, a.coeff, a.len);
+
   // Set base = base mod (I)
-  poly_carryless_div(&base, I, p);
+  poly_carryless_div(base, I, p);
 
-  // Temproray buffer
-  poly_t *buff = poly_create_zero(base.deg + base.deg + 1);
+  // Temporary buffer
+  poly_t *buff = poly_create_zero(base->deg + base->deg + 1);
 
-  // Set prod equal to 1.
-  poly_t *prod = poly_create_zero(base.deg + base.deg + 1);
-  *res->coeff = 1;
+  // Set prod equal to 1. Prod holds the result.
+  poly_t *prod = poly_create_zero(base->deg + base->deg + 1);
+  *prod->coeff = 1;
 
   while (exp > 0) {
-    // Pointer for swapping arrays.
-    int8_t *tmp = NULL;
     if ((exp % 2) != 0) {
       // Set buff = prod * base
-      poly_carryless_mul(buff, *prod, base, p);
+      poly_carryless_mul(buff, *prod, *base, p);
       poly_normalize_deg(buff);
       poly_carryless_div(buff, I, p);
       exp = exp - 1;
@@ -206,20 +185,27 @@ void poly_fpowm(poly_t *res, poly_t base, uint64_t exp, poly_t I, int8_t p) {
       tmp = prod->coeff;
       prod->coeff = buff->coeff;
       prod->deg = buff->deg;
+      prod->len = buff->len;
       buff->coeff = tmp;
     }
     // Set buff = base * base;
-    poly_carryless_mul(buff, base, base, p);
+    poly_carryless_mul(buff, *base, *base, p);
     poly_normalize_deg(buff);
     poly_carryless_div(buff, I, p);
     exp = exp / 2;
     // Swap buff and base.
-    tmp = base.coeff;
-    base.coeff = buff->coeff;
-    base.deg = buff->deg;
+    tmp = base->coeff;
+    base->coeff = buff->coeff;
+    base->deg = buff->deg;
+    base->len = buff->len;
     buff->coeff = tmp;
   }
 
-  memcpy(res->coeff, prod->coeff, sizeof(*prod->coeff) *(prod->deg + 1));
+  memcpy(res->coeff, prod->coeff, sizeof(*prod->coeff) * (prod->deg + 1));
   res->deg = prod->deg;
+
+  // Clean up.
+  poly_destroy(prod);
+  poly_destroy(buff);
+  poly_destroy(base);
 }
