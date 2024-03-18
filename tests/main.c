@@ -68,15 +68,16 @@ MU_TEST(poly_init_finit_test) {
 
 MU_TEST(poly_eq_test) {
   int8_t coeff_a[] = {1, 0, 0, 40, 21, 105};
-  poly_t a = {.deg = 5, .coeff = coeff_a, .len = 6};
+  poly_t *a = poly_from_array(5, coeff_a, 6);
 
   int8_t coeff_b[] = {1, 0, 0, -70, 11, 32};
-  poly_t b = {.deg = 5, .coeff = coeff_b, .len = 6};
+  poly_t *b = poly_from_array(5, coeff_b, 6);
 
-  poly_t c = a;
+  mu_check(poly_eq(a, a));
+  mu_check(!poly_eq(a, b));
 
-  mu_check(poly_eq(&a, &c));
-  mu_check(!poly_eq(&a, &b));
+  poly_destroy(a);
+  poly_destroy(b);
 }
 
 MU_TEST(poly_div_test_case1) {
@@ -211,11 +212,8 @@ MU_TEST(gf_elem_from_array_test4) {
 }
 
 MU_TEST(gf_get_neutral_test) {
-  int8_t zero_coeff_2_2[2] = {0};
-  poly_t zero_2_2 = {.coeff = zero_coeff_2_2, .deg = 0, .len = 2};
-
-  int8_t zero_coeff_2_5[5] = {0};
-  poly_t zero_2_5 = {.coeff = zero_coeff_2_5, .deg = 0, .len = 5};
+  poly_t *zero_2_2 = poly_create_zero(2);
+  poly_t *zero_2_5 = poly_create_zero(5);
 
   GF_elem_t *neutral_2_2 = GF_elem_get_neutral(&GF2_2);
   mu_check(neutral_2_2->GF->p == 2);
@@ -225,8 +223,10 @@ MU_TEST(gf_get_neutral_test) {
   mu_check(poly_eq(neutral_2_2->GF->I, &IGF2_2));
   mu_check(neutral_2_2->poly->deg == 0);
   mu_check(neutral_2_2->poly->len == 2);
-  mu_check(poly_eq(neutral_2_2->poly, &zero_2_2));
+  mu_check(poly_eq(neutral_2_2->poly, zero_2_2));
+
   GF_elem_destroy(neutral_2_2);
+  poly_destroy(zero_2_2);
 
   GF_elem_t *neutral_2_5 = GF_elem_get_neutral(&GF2_5);
   mu_check(neutral_2_5->GF->p == 2);
@@ -236,8 +236,10 @@ MU_TEST(gf_get_neutral_test) {
   mu_check(poly_eq(neutral_2_5->GF->I, &IGF2_5));
   mu_check(neutral_2_5->poly->deg == 0);
   mu_check(neutral_2_5->poly->len == 5);
-  mu_check(poly_eq(neutral_2_5->poly, &zero_2_5));
+  mu_check(poly_eq(neutral_2_5->poly, zero_2_5));
+
   GF_elem_destroy(neutral_2_5);
+  poly_destroy(zero_2_5);
 }
 
 MU_TEST(gf_get_unity_test) {
@@ -335,9 +337,9 @@ MU_TEST(gf_diff_test2) {
 
 MU_TEST(poly_mul_no_carry_test1) {
   int8_t coeff[] = {1, 1};
-  poly_t a = {.deg = 1, .coeff = coeff, .len = 2};
+  poly_t *a = poly_from_array(1, coeff, 2);
   poly_t *res = poly_create_zero(3);
-  poly_carryless_mul(res, a, a, 3);
+  poly_carryless_mul(res, *a, *a, 3);
 
   mu_check(res->deg = 2);
   mu_check(res->len = 3);
@@ -346,17 +348,18 @@ MU_TEST(poly_mul_no_carry_test1) {
   mu_check(res->coeff[2] == 1);
 
   poly_destroy(res);
+  poly_destroy(a);
 }
 
 MU_TEST(poly_mul_no_carry_test2) {
   int8_t coeff_a[] = {1, 0, 1, 5, 15};
-  poly_t a = {.deg = 4, .coeff = coeff_a, .len = 5};
+  poly_t *a = poly_from_array(4, coeff_a, 5);
 
   int8_t coeff_b[] = {1, 0, 1, 0, 0};
-  poly_t b = {.deg = 2, .coeff = coeff_b, .len = 5};
+  poly_t *b = poly_from_array(2, coeff_b, 5);
 
   poly_t *res = poly_create_zero(7);
-  poly_carryless_mul(res, a, b, 17);
+  poly_carryless_mul(res, *a, *b, 17);
 
   mu_check(res->deg = 6);
   mu_check(res->len = 7);
@@ -369,6 +372,8 @@ MU_TEST(poly_mul_no_carry_test2) {
   mu_check(res->coeff[6] == 15);
 
   poly_destroy(res);
+  poly_destroy(a);
+  poly_destroy(b);
 }
 
 MU_TEST(gf_prod_test1) {
@@ -415,6 +420,21 @@ MU_TEST(gf_prod_test2) {
   GF_elem_destroy(res);
 }
 
+MU_TEST(poly_fpowm_test1) {
+  int8_t coeff[2] = {1, 1, 0};
+  poly_t *a = poly_from_array(1, coeff, 3);
+  poly_t *res = poly_create_zero(3);
+  poly_fpowm(res, *a, 2, IGF2_2, 2);
+
+  mu_check(res->deg = 1);
+  mu_check(res->len = 3);
+  mu_check(res->coeff[0] == 0);
+  mu_check(res->coeff[1] == 1);
+
+  poly_destroy(res);
+  poly_destroy(a);
+}
+
 MU_TEST_SUITE(gf_tests) {
   MU_RUN_TEST(gf_eq_test);
   MU_RUN_TEST(gf_get_neutral_test);
@@ -436,6 +456,7 @@ MU_TEST_SUITE(gf_arithmetic_tests) {
   MU_RUN_TEST(gf_diff_test2);
   MU_RUN_TEST(gf_prod_test1);
   MU_RUN_TEST(gf_prod_test2);
+  MU_RUN_TEST(poly_fpowm_test1);
 }
 
 int main() {
