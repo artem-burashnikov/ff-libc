@@ -8,7 +8,7 @@
 // Galois field.
 typedef struct {
   int8_t p;   // Characteristic of the field GF(p).
-  int8_t n;   // Dimension of the field extension.
+  size_t n;   // Dimension of the field extension.
   poly_t *I;  // Irreducible polynomial over GF(p)[X] of degree n.
 } GF_t;
 
@@ -19,11 +19,11 @@ typedef struct {
 } GF_elem_t;
 
 /* Initialize a quotient field. */
-GF_t *GF_init(int8_t p, int8_t n, poly_t *I);
+GF_t *GF_init(int8_t p, size_t n, poly_t *I);
 
 /* Given an array of coefficients of the specified length and GF(p)[x]/(I),
    Return an element over that field. */
-GF_elem_t *GF_elem_from_array(int8_t *coeff, int8_t len, GF_t *GF);
+GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF);
 
 /* Destroy a given element of the Galois Field.
    The field itself is left untouched. */
@@ -48,11 +48,11 @@ int GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
 /* Calculate res: a = b * res mod (I). Return 0 on success. */
 int GF_elem_div(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
 
-/* Calculate res = -a mod p. Return 0 on success. */
-int GF_elem_get_complement(GF_elem_t *res, GF_elem_t a);
+/* Return res = -a mod p. */
+GF_elem_t *GF_elem_get_complement(GF_elem_t a);
 
-/* Calculate res: res * a = 1 mod (I). Return 0 on success. */
-int GF_elem_get_inverse(GF_elem_t *res, GF_elem_t a);
+/* Calculate res: res * a = 1 mod (I). */
+GF_elem_t *GF_elem_get_inverse(GF_elem_t a);
 
 /* Return neutral element of the given finite field. */
 GF_elem_t *GF_elem_get_neutral(GF_t *GF);
