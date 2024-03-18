@@ -18,12 +18,36 @@ typedef struct {
   poly_t *poly;  // Element of the GF(p)/(I) quotient field.
 } GF_elem_t;
 
+// x^8 + x^4 + x^3 + x^2 + 1
+extern int8_t IGF2_8_coeff[9];
+extern poly_t IGF2_8;
+extern const GF_t GF2_8;
+
+// x^16 + x^9 + x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1
+extern int8_t IGF2_16_coeff[17];
+extern poly_t IGF2_16;
+extern const GF_t GF2_16;
+
+// x^32 + x^22 + x^2 + x^1 + 1
+extern int8_t IGF2_32_coeff[33];
+extern poly_t IGF2_32;
+extern const GF_t GF2_32;
+
 /* Initialize a quotient field. */
 GF_t *GF_init(int8_t p, size_t n, poly_t *I);
 
 /* Given an array of coefficients of the specified length and GF(p)[x]/(I),
    Return an element over that field. */
 GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF);
+
+/* Convert to and from uint8, uint16, uint32 to the corresponding element of the
+ * GF(2). */
+GF_elem_t *GF_elem_from_uint8(uint8_t x);
+uint8_t GF_elem_to_uint8(GF_elem_t *a);
+GF_elem_t *GF_elem_from_uint16(uint16_t x);
+uint16_t GF_elem_to_uint16(GF_elem_t *a);
+GF_elem_t *GF_elem_from_uint32(uint32_t x);
+uint32_t GF_elem_to_uint32(GF_elem_t *a);
 
 /* Destroy a given element of the Galois Field.
    The field itself is left untouched. */

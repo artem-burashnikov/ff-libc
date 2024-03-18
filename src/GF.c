@@ -9,6 +9,22 @@
 #include "poly.h"
 #include "utils.h"
 
+// x^8 + x^4 + x^3 + x^2 + 1
+int8_t IGF2_8_coeff[9] = {1, 0, 1, 1, 1, 0, 0, 0, 1};
+poly_t IGF2_8 = {.deg = 8, .len = 9, .coeff = IGF2_8_coeff};
+const GF_t GF2_8 = {.p = 2, .n = 8, .I = &IGF2_8};
+
+// x^16 + x^9 + x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1
+int8_t IGF2_16_coeff[17] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1};
+poly_t IGF2_16 = {.deg = 16, .len = 17, .coeff = IGF2_16_coeff};
+const GF_t GF2_16 = {.p = 2, .n = 16, .I = &IGF2_16};
+
+// x^32 + x^22 + x^2 + x^1 + 1
+int8_t IGF2_32_coeff[33] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+poly_t IGF2_32 = {.deg = 32, .len = 33, .coeff = IGF2_32_coeff};
+const GF_t GF2_32 = {.p = 2, .n = 32, .I = &IGF2_32};
+
 GF_t *GF_init(int8_t p, size_t n, poly_t *I) {
   GF_t *GF = malloc(sizeof(*GF));
   if (!GF) {
@@ -189,5 +205,86 @@ GF_elem_t *GF_elem_get_inverse(GF_elem_t a) {
 
   poly_fpowm(res->poly, *a.poly, mul_group_ord, *a.GF->I, a.GF->p);
 
+  return res;
+}
+
+GF_elem_t *GF_elem_from_uint8(uint8_t x) {
+  GF_elem_t *res = GF_elem_get_neutral(&GF2_8);
+  uint8_t d;
+  uint8_t deg = 0;
+  size_t i = 0;
+  while (x > 0) {
+    d = x % 2;
+    if (d == 1) {
+      deg++;
+    }
+    res->poly->coeff[i] = d;
+    x /= 2;
+    i++;
+  }
+  return res;
+}
+
+uint8_t GF_elem_to_uint8(GF_elem_t *a) {
+  uint8_t res = 0;
+  uint8_t factor = 1;
+  for (size_t i = 0; i < a->GF->n; ++i) {
+    res += factor * a->poly->coeff[i];
+    factor *= 2;
+  }
+  return res;
+}
+
+GF_elem_t *GF_elem_from_uint16(uint16_t x) {
+  GF_elem_t *res = GF_elem_get_neutral(&GF2_16);
+  uint8_t d;
+  uint8_t deg = 0;
+  size_t i = 0;
+  while (x > 0) {
+    d = x % 2;
+    if (d == 1) {
+      deg++;
+    }
+    res->poly->coeff[i] = d;
+    x /= 2;
+    i++;
+  }
+  return res;
+}
+
+uint16_t GF_elem_to_uint16(GF_elem_t *a) {
+  uint8_t res = 0;
+  uint8_t factor = 1;
+  for (size_t i = 0; i < a->GF->n; ++i) {
+    res += factor * a->poly->coeff[i];
+    factor *= 2;
+  }
+  return res;
+}
+
+GF_elem_t *GF_elem_from_uint32(uint32_t x) {
+  GF_elem_t *res = GF_elem_get_neutral(&GF2_32);
+  uint8_t d;
+  uint8_t deg = 0;
+  size_t i = 0;
+  while (x > 0) {
+    d = x % 2;
+    if (d == 1) {
+      deg++;
+    }
+    res->poly->coeff[i] = d;
+    x /= 2;
+    i++;
+  }
+  return res;
+}
+
+uint32_t GF_elem_to_uint32(GF_elem_t *a) {
+  uint8_t res = 0;
+  uint8_t factor = 1;
+  for (size_t i = 0; i < a->GF->n; ++i) {
+    res += factor * a->poly->coeff[i];
+    factor *= 2;
+  }
   return res;
 }
