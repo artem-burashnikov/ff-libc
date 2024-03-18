@@ -333,9 +333,42 @@ MU_TEST(gf_diff_test2) {
   GF_elem_destroy(b);
 }
 
-MU_TEST_SUITE(poly_long_div_test) {
-  MU_RUN_TEST(poly_div_test_case1);
-  MU_RUN_TEST(poly_div_test_case2);
+MU_TEST(poly_mul_no_carry_test1) {
+  int8_t coeff[] = {1, 1};
+  poly_t a = {.deg = 1, .coeff = coeff, .len = 2};
+  poly_t *res = poly_create_zero(3);
+  poly_carryless_mul(res, a, a, 3);
+
+  mu_check(res->deg = 2);
+  mu_check(res->len = 3);
+  mu_check(res->coeff[0] == 1);
+  mu_check(res->coeff[1] == 2);
+  mu_check(res->coeff[2] == 1);
+
+  poly_destroy(res);
+}
+
+MU_TEST(poly_mul_no_carry_test2) {
+  int8_t coeff_a[] = {1, 0, 1, 5, 15};
+  poly_t a = {.deg = 4, .coeff = coeff_a, .len = 5};
+
+  int8_t coeff_b[] = {1, 0, 1, 0, 0};
+  poly_t b = {.deg = 2, .coeff = coeff_b, .len = 5};
+
+  poly_t *res = poly_create_zero(7);
+  poly_carryless_mul(res, a, b, 17);
+
+  mu_check(res->deg = 6);
+  mu_check(res->len = 7);
+  mu_check(res->coeff[0] == 1);
+  mu_check(res->coeff[1] == 0);
+  mu_check(res->coeff[2] == 2);
+  mu_check(res->coeff[3] == 5);
+  mu_check(res->coeff[4] == 16);
+  mu_check(res->coeff[5] == 5);
+  mu_check(res->coeff[6] == 15);
+
+  poly_destroy(res);
 }
 
 MU_TEST_SUITE(gf_tests) {
@@ -349,6 +382,10 @@ MU_TEST_SUITE(gf_tests) {
 }
 
 MU_TEST_SUITE(gf_arithmetic_tests) {
+  MU_RUN_TEST(poly_div_test_case1);
+  MU_RUN_TEST(poly_div_test_case2);
+  MU_RUN_TEST(poly_mul_no_carry_test1);
+  MU_RUN_TEST(poly_mul_no_carry_test2);
   MU_RUN_TEST(gf_sum_test1);
   MU_RUN_TEST(gf_sum_test2);
   MU_RUN_TEST(gf_diff_test1);
@@ -358,7 +395,6 @@ MU_TEST_SUITE(gf_arithmetic_tests) {
 int main() {
   MU_RUN_TEST(poly_eq_test);
   MU_RUN_TEST(poly_init_finit_test);
-  MU_RUN_SUITE(poly_long_div_test);
   MU_RUN_SUITE(gf_tests);
   MU_RUN_SUITE(gf_arithmetic_tests);
   MU_REPORT();
