@@ -255,9 +255,11 @@ MU_TEST(gf_get_unity_test) {
 MU_TEST(gf_sum_test1) {
   int8_t coeff_a[] = {1, 1, 1, 0, 0};
   GF_elem_t *a = GF_elem_from_array(coeff_a, 5, &GF2_5);
+  mu_check(a->poly->deg == 2);
 
   int8_t coeff_b[] = {0, 1, 1, 0, 1};
   GF_elem_t *b = GF_elem_from_array(coeff_b, 5, &GF2_5);
+  mu_check(b->poly->deg == 4);
 
   GF_elem_sum(a, *a, *b);
   mu_check(a->poly->len == 5);
