@@ -27,9 +27,8 @@ int GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   poly_normalize_deg(tmp);
   poly_carryless_div(tmp, *res->GF->I, res->GF->p);
 
-  GF_elem_normalize(res);
-
-  memmove(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * res->poly->len);
+  memmove(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * (tmp->deg + 1));
+  res->poly->deg = tmp->deg;
 
   poly_destroy(tmp);
 
