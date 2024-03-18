@@ -165,6 +165,8 @@ void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p) {
     return;
   }
 
+  memset(res->coeff, 0, res->len * sizeof(*res->coeff));
+
   for (size_t i = 0; i <= a.deg; ++i) {
     for (size_t j = 0; j <= b.deg; ++j) {
       if (a.coeff[i] == 0) {
@@ -174,4 +176,50 @@ void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p) {
           eu_mod(res->coeff[i + j] + a.coeff[i] * b.coeff[j], p);
     }
   }
+}
+
+void poly_fpowm(poly_t *res, poly_t base, uint64_t exp, poly_t I, int8_t p) {
+  if (!res) {
+    return;
+  }
+
+  // Set base = base mod (I)
+  poly_carryless_div(&base, I, p);
+
+  // Temproray buffer
+  poly_t *buff = poly_create_zero(base.deg + base.deg + 1);
+
+  // Set prod equal to 1.
+  poly_t *prod = poly_create_zero(base.deg + base.deg + 1);
+  *res->coeff = 1;
+
+  while (exp > 0) {
+    // Pointer for swapping arrays.
+    int8_t *tmp = NULL;
+    if ((exp % 2) != 0) {
+      // Set buff = prod * base
+      poly_carryless_mul(buff, *prod, base, p);
+      poly_normalize_deg(buff);
+      poly_carryless_div(buff, I, p);
+      exp = exp - 1;
+      // Swap buff and prod.
+      tmp = prod->coeff;
+      prod->coeff = buff->coeff;
+      prod->deg = buff->deg;
+      buff->coeff = tmp;
+    }
+    // Set buff = base * base;
+    poly_carryless_mul(buff, base, base, p);
+    poly_normalize_deg(buff);
+    poly_carryless_div(buff, I, p);
+    exp = exp / 2;
+    // Swap buff and base.
+    tmp = base.coeff;
+    base.coeff = buff->coeff;
+    base.deg = buff->deg;
+    buff->coeff = tmp;
+  }
+
+  memcpy(res->coeff, prod->coeff, sizeof(*prod->coeff) *(prod->deg + 1));
+  res->deg = prod->deg;
 }

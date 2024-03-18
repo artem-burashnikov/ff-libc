@@ -36,7 +36,7 @@ void poly_carryless_div(poly_t *a, poly_t b, int8_t p);
 void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p);
 
 /* Calculate res = base^exp mod (I) */
-void poly_fpowm(poly_t *res, poly_t base, uint64_t exp, poly_t I);
+void poly_fpowm(poly_t *res, poly_t base, uint64_t exp, poly_t I, int8_t p);
 
 /* Normalize the degree (find the greatest non zero coefficient index)
    of the given polynomial. */
