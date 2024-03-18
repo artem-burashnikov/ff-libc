@@ -73,7 +73,7 @@ int GF_eq(const GF_t *F, const GF_t *K) {
 }
 
 GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
-  if (!coeff || (len <= 0) || !GF) {
+  if (!coeff || (!len) || !GF) {
     return NULL;
   }
 
@@ -169,6 +169,25 @@ GF_elem_t *GF_elem_get_complement(GF_elem_t a) {
   }
 
   poly_normalize_deg(res->poly);
+
+  return res;
+}
+
+GF_elem_t *GF_elem_get_inverse(GF_elem_t a) {
+  if (a.poly->deg == 0 && (*a.poly->coeff == 0)) {
+    return NULL;
+  }
+  /* GF(p)[x]/(I) \ {0} forms a multiplicative group G* of order (p^n - 1)
+     So for any a in GF(p)[x]/(I): a^(|G*|) = 1. That implies a^(|G*| - 1) =
+     inverse(a). */
+  uint64_t mul_group_ord = fpow(a.GF->p, a.GF->n) - 2;
+
+  GF_elem_t *res = GF_elem_get_neutral(a.GF);
+  if (!res) {
+    return NULL;
+  }
+
+  poly_fpowm(res->poly, *a.poly, mul_group_ord, *a.GF->I, a.GF->p);
 
   return res;
 }

@@ -155,23 +155,21 @@ void poly_carryless_mul(poly_t *res, poly_t a, poly_t b, int8_t p) {
   }
 }
 
-// Assume a.len = res.len = I.deg
 void poly_fpowm(poly_t *res, poly_t a, uint64_t exp, poly_t I, int8_t p) {
   if (!res) {
     return;
   }
 
   int8_t *tmp = NULL;
-  poly_t *base = poly_from_array(a.deg, a.coeff, a.len);
-
-  // Set base = base mod (I)
-  poly_carryless_div(base, I, p);
+  poly_t *base = poly_create_zero(I.deg + I.deg);
+  base->deg = a.deg;
+  memcpy(base->coeff, a.coeff, (a.deg + 1) * sizeof(*base->coeff));
 
   // Temporary buffer
-  poly_t *buff = poly_create_zero(base->deg + base->deg + 1);
+  poly_t *buff = poly_create_zero(I.deg + I.deg);
 
   // Set prod equal to 1. Prod holds the result.
-  poly_t *prod = poly_create_zero(base->deg + base->deg + 1);
+  poly_t *prod = poly_create_zero(I.deg + I.deg);
   *prod->coeff = 1;
 
   while (exp > 0) {
