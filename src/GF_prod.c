@@ -16,20 +16,22 @@ int GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
     return 1;
   }
 
-  poly_t *res_poly = poly_create_zero(a.poly->len + b.poly->len - 2);
+  poly_t *tmp = poly_create_zero(a.poly->deg + b.poly->deg + 1);
 
-  if (!res_poly) {
+  if (!tmp) {
     return 1;
   }
 
-  poly_carryless_mul(res_poly, *a.poly, *b.poly, *res->GF->I, res->GF->p);
-
-  memmove(res->poly->coeff, res_poly->coeff,
-          sizeof(*res_poly->coeff) * res->poly->len);
-
-  poly_destroy(res_poly);
+  // Assume coefficients are normalized: 0...(p-1)
+  poly_carryless_mul(tmp, *a.poly, *b.poly, res->GF->p);
+  poly_normalize_deg(tmp);
+  poly_carryless_div(tmp, *res->GF->I, res->GF->p);
 
   GF_elem_normalize(res);
+
+  memmove(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * res->poly->len);
+
+  poly_destroy(tmp);
 
   return 0;
 }
