@@ -2,36 +2,47 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "GF.h"
 #include "poly.h"
 
-int8_t iabs(int8_t x) { return (x < 0) ? -x : x; }
-
-int8_t eu_mod(int8_t x, int8_t y) {
-  assert(y != 0);
-  int8_t r;
-  r = x % y;
-  if (r < 0) {
-    r += iabs(y);
-  }
-  return r;
-}
-
-int8_t get_complement_mod_p(uint8_t a, uint8_t p) {
-  assert(p > 1);
+uint8_t complement(uint8_t a, uint8_t p) {
   assert(a < p);
   return (p - a) % p;
 }
 
-int8_t find_q_mod_p(int8_t x, int8_t y, int8_t p) {
-  assert(p > 1);
-  assert((y >= 0) && (x >= 0));
-  int8_t q = 0;
+// Asuume p is prime.
+int8_t inverse(int8_t a, int8_t p) {
+  assert(a != 0);
+  int8_t t = 0;
+  int8_t new_t = 1;
+  int8_t r = p;
+  int8_t new_r = a;
+
+  int8_t q;
+  int8_t tmp;
+  while (new_r != 0) {
+    q = r / new_r;
+
+    tmp = new_t;
+    new_t = t - q * new_t;
+    t = tmp;
+
+    tmp = new_r;
+    new_r = r - q * new_r;
+    r = tmp;
+  }
+  t = (t < 0) ? (t + p) : t;
+  return t;
+}
+
+// Assume p is prime.
+uint8_t x_div_y_mod_p(uint8_t x, uint8_t y, uint8_t p) {
+  uint8_t q = 0;
   while (((y * q) % p) != x) {
     q += 1;
   }
-  assert(q < p);
   return q;
 }
 
@@ -40,7 +51,6 @@ uint64_t fpow(uint8_t base, uint8_t exp) {
   while (exp > 0) {
     if ((exp % 2) != 0) {
       res *= base;
-      exp = exp - 1;
     }
     base *= base;
     exp = exp / 2;
