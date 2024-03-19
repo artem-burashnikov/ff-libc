@@ -35,20 +35,6 @@ int8_t find_q_mod_p(int8_t x, int8_t y, int8_t p) {
   return q;
 }
 
-#if 0
-int8_t get_inv_mod_p(int8_t d, int8_t p) {
-  assert(p > 1);
-  assert((d > 0) && (d < p));
-  int8_t res = 1;
-  while (((d * res) % p) != 1) {
-    res += 1;
-  }
-  assert(res < p);
-  return res;
-}
-#endif
-
-// Fast base to the exponent.
 uint64_t fpow(uint8_t base, uint8_t exp) {
   uint64_t res = 1;
   while (exp > 0) {

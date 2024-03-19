@@ -6,9 +6,9 @@
 #include "poly.h"
 #include "utils.h"
 
-int GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
+void GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   if (!res) {
-    return 1;
+    return;
   }
   // Get b's complement.
   GF_elem_t *negb = GF_elem_get_complement(b);
@@ -17,6 +17,4 @@ int GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   GF_elem_sum(res, a, *negb);
 
   GF_elem_destroy(negb);
-
-  return 0;
 }

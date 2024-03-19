@@ -12,33 +12,22 @@
 // x^8 + x^4 + x^3 + x^2 + 1
 int8_t IGF2_8_coeff[9] = {1, 0, 1, 1, 1, 0, 0, 0, 1};
 poly_t IGF2_8 = {.deg = 8, .len = 9, .coeff = IGF2_8_coeff};
-const GF_t GF2_8 = {.p = 2, .n = 8, .I = &IGF2_8};
+GF_t GF2_8 = {.p = 2, .n = 8, .I = &IGF2_8};
 
 // x^16 + x^9 + x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1
 int8_t IGF2_16_coeff[17] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1};
 poly_t IGF2_16 = {.deg = 16, .len = 17, .coeff = IGF2_16_coeff};
-const GF_t GF2_16 = {.p = 2, .n = 16, .I = &IGF2_16};
+GF_t GF2_16 = {.p = 2, .n = 16, .I = &IGF2_16};
 
 // x^32 + x^22 + x^2 + x^1 + 1
 int8_t IGF2_32_coeff[33] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                             0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 poly_t IGF2_32 = {.deg = 32, .len = 33, .coeff = IGF2_32_coeff};
-const GF_t GF2_32 = {.p = 2, .n = 32, .I = &IGF2_32};
+GF_t GF2_32 = {.p = 2, .n = 32, .I = &IGF2_32};
 
 GF_t *GF_init(int8_t p, size_t n, poly_t *I) {
   GF_t *GF = malloc(sizeof(*GF));
-  if (!GF) {
-    return NULL;
-  }
-
-  // Artificial constraints.
-  if ((n < 2) || (n > 100) || (p > 11) || (p < 2)) {
-    free(GF);
-    return NULL;
-  }
-
-  // Sanity check.
-  if (!I || !I->coeff || (I->deg >= I->len)) {
+  if (!GF || !I) {
     free(GF);
     return NULL;
   }
@@ -51,29 +40,29 @@ GF_t *GF_init(int8_t p, size_t n, poly_t *I) {
 }
 
 void GF_elem_destroy(GF_elem_t *a) {
+  if (a) {
   poly_destroy(a->poly);
   free(a);
+  }
 }
 
-int GF_elem_normalize(GF_elem_t *a) {
-  if (!a || !a->GF || !a->poly || (a->poly->len != a->GF->n)) {
-    return 1;
+void GF_elem_normalize(GF_elem_t *a) {
+  if (!a) {
+    return;
   }
 
-  // Normalize coefficients mod p and deg.
+  // Normalize coefficients mod p and polynomial degree.
   poly_normalize_coeff(a->poly, a->GF->p);
   poly_normalize_deg(a->poly);
 
   /* Then normalize a over GF(p)[X]/(I) setting a = a mod I. */
   // If deg a < deg I: q = 0, r = a.
   if (a->poly->deg < a->GF->I->deg) {
-    return 0;
+    return;
   }
 
   // At this point deg a >= deg I
   poly_carryless_div(a->poly, *a->GF->I, a->GF->p);
-
-  return 0;
 }
 
 int GF_eq(const GF_t *F, const GF_t *K) {
@@ -98,6 +87,9 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
   }
 
   GF_elem_t *a = malloc(sizeof(*a));
+  /* Since array of coefficients could be allocated on a stack,
+     we need to separately create a copy on the heap so it could
+     be freed later if necessary. */
   poly_t *poly = poly_from_array(len - 1, coeff, len);
   if (!a || !poly) {
     free(a);
@@ -105,14 +97,17 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
     return NULL;
   }
 
+  // Normalizae polynomival over Fp.
   poly_normalize_coeff(poly, GF->p);
   poly_normalize_deg(poly);
 
+  // Normalize polynomial over GF(p)[X]/(I).
   if (poly->deg >= GF->I->deg) {
     poly_carryless_div(poly, *GF->I, GF->p);
   }
 
-  // Normalize array length.
+  /* Normalize array length matching it with the dimension of the field.
+     At this point degree is less than the dimension, so we won't lose any data. */
   if (len != GF->n) {
     int8_t *tmp = realloc(poly->coeff, sizeof(*tmp) * GF->n);
     if (!tmp) {
@@ -121,7 +116,7 @@ GF_elem_t *GF_elem_from_array(int8_t *coeff, size_t len, GF_t *GF) {
       return NULL;
     }
 
-    // If we added any blocks, then need to initialize.
+    // If we added any blocks, then need to set garbage values to zero.
     if (len < GF->n) {
       memset(tmp + len, 0, sizeof(*tmp) * (GF->n - len));
     }
@@ -162,7 +157,7 @@ GF_elem_t *GF_elem_get_unity(GF_t *GF) {
   /* Get neutral and set the least significant digit to one. */
   GF_elem_t *unity = GF_elem_get_neutral(GF);
 
-  if (!unity || !GF || (GF->n < 1)) {
+  if (!unity || !GF) {
     GF_elem_destroy(unity);
     return NULL;
   }
@@ -184,7 +179,7 @@ GF_elem_t *GF_elem_get_complement(GF_elem_t a) {
     res->poly->coeff[i] = get_complement_mod_p(a.poly->coeff[i], a.GF->p);
   }
 
-  poly_normalize_deg(res->poly);
+  res->poly->deg = a.poly->deg;
 
   return res;
 }
@@ -194,8 +189,8 @@ GF_elem_t *GF_elem_get_inverse(GF_elem_t a) {
     return NULL;
   }
   /* GF(p)[x]/(I) \ {0} forms a multiplicative group G* of order (p^n - 1)
-     So for any a in GF(p)[x]/(I): a^(|G*|) = 1. That implies a^(|G*| - 1) =
-     inverse(a). */
+     So for any a in GF(p)[x]/(I): a^(|G*|) = 1.
+     That implies a^(|G*| - 1) = inverse(a). */
   uint64_t mul_group_ord = fpow(a.GF->p, a.GF->n) - 2;
 
   GF_elem_t *res = GF_elem_get_neutral(a.GF);

@@ -71,18 +71,18 @@ poly_t *poly_create_zero(size_t len) {
 }
 
 void poly_normalize_deg(poly_t *a) {
-  if (!a || (a->deg >= a->len)) {
+  if (!a) {
     return;
   }
   size_t k = a->len - 1;
-  while ((k > 0) && a->coeff[k] == 0) {
+  while ((k > 0) && (a->coeff[k] == 0)) {
     k--;
   }
   a->deg = k;
 }
 
 void poly_normalize_coeff(poly_t *a, int8_t p) {
-  if (!a || (a->deg >= a->len) || (p < 2)) {
+  if (!a) {
     return;
   }
 
@@ -98,6 +98,7 @@ void poly_carryless_sum(poly_t *res, poly_t a, poly_t b, int8_t p) {
     return;
   }
 
+  // Using tmp variable w allows a or b to be passed as res.
   int8_t w;
   size_t max_deg = MAX(a.deg, b.deg);
   for (size_t i = 0; i <= max_deg; ++i) {

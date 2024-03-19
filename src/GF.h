@@ -19,19 +19,13 @@ typedef struct {
 } GF_elem_t;
 
 // x^8 + x^4 + x^3 + x^2 + 1
-extern int8_t IGF2_8_coeff[9];
-extern poly_t IGF2_8;
-extern const GF_t GF2_8;
+extern GF_t GF2_8;
 
 // x^16 + x^9 + x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1
-extern int8_t IGF2_16_coeff[17];
-extern poly_t IGF2_16;
-extern const GF_t GF2_16;
+extern GF_t GF2_16;
 
 // x^32 + x^22 + x^2 + x^1 + 1
-extern int8_t IGF2_32_coeff[33];
-extern poly_t IGF2_32;
-extern const GF_t GF2_32;
+extern GF_t GF2_32;
 
 /* Initialize a quotient field. */
 GF_t *GF_init(int8_t p, size_t n, poly_t *I);
@@ -54,23 +48,23 @@ uint32_t GF_elem_to_uint32(GF_elem_t *a);
 void GF_elem_destroy(GF_elem_t *a);
 
 /* Normalize polynomial over GF(p)[x]/(I). */
-int GF_elem_normalize(GF_elem_t *a);
+void GF_elem_normalize(GF_elem_t *a);
 
 /* Return 1 if the given fields are equal.
    Meaning they have the same characteristic and irreducible polynomials. */
 int GF_eq(const GF_t *F, const GF_t *K);
 
 /* res = a + b mod (I). Return 0 on success. */
-int GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
+void GF_elem_sum(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
 
 /* res = a - b mod (I). Return 0 on success. */
-int GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
+void GF_elem_diff(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
 
 /* res = a * b mod (I). Return 0 on success. */
-int GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
+void GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
 
 /* Calculate res: a = b * res mod (I). Return 0 on success. */
-int GF_elem_div(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
+void GF_elem_div(GF_elem_t *res, GF_elem_t a, GF_elem_t b);
 
 /* Return res = -a mod p. */
 GF_elem_t *GF_elem_get_complement(GF_elem_t a);
