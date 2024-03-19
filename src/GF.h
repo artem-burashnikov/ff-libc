@@ -31,6 +31,10 @@ GF_t *GF_init_field(uint8_t p, poly_t I);
 
 void GF_destroy_field(GF_t *GF);
 
+/* Destroy a given element of the Galois Field.
+   The field itself is left untouched. */
+void GF_elem_destroy(GF_elem_t *a);
+
 /* Given an array of polynomial coefficients of any length and GF(p)[x]/(I),
    Return an element over that field. */
 GF_elem_t *GF_elem_from_array(uint8_t deg, uint8_t *coeff, GF_t *GF);
@@ -76,6 +80,3 @@ GF_elem_t *GF_elem_get_neutral(GF_t *GF);
 /* Return unity element of the given finite field. */
 GF_elem_t *GF_elem_get_unity(GF_t *GF);
 
-/* Destroy a given element of the Galois Field.
-   The field itself is left untouched. */
-void GF_elem_destroy(GF_elem_t *a);

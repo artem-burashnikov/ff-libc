@@ -13,6 +13,7 @@ poly_t *poly_from_array(uint8_t deg, uint8_t *coeff) {
   if (!coeff) {
     return NULL;
   }
+  // Assume deg < len(coeff).
   poly_t *poly = malloc(sizeof(*poly));
   uint8_t *tmp = malloc(sizeof(*coeff) * (deg + 1));
   if (!poly || !tmp) {
@@ -95,6 +96,7 @@ void poly_div(poly_t *res, poly_t a, poly_t b, uint8_t p) {
 
   memcpy(res->coeff, a.coeff, sizeof(*a.coeff) * (a.deg + 1));
   res->deg = a.deg;
+
   if (res->deg < b.deg) {
     return;
   }
@@ -112,7 +114,6 @@ void poly_div(poly_t *res, poly_t a, poly_t b, uint8_t p) {
   uint8_t w;
   for (size_t k = (n - m) + 1; k > 0; --k) {
     q = u[(k - 1) + m] * inverse(v[m], p);
-    // q = inverse(u[(k - 1) + m], v[m], p);
     for (size_t i = m + (k - 1) + 1; i > (k - 1); --i) {
       w = (q * v[(i - 1) - (k - 1)]) % p;
       w = complement(w, p);
