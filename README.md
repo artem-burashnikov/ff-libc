@@ -4,17 +4,41 @@
 
 ## Overview
 
-TODO
+This is a C library which prorvides arithmetic operations in finite fields, also known as Galois fields.
 
 ### Project structure
 
-TODO
+```ignorelang
+ff-libc/
+├── src/
+│   └── (source files)
+│
+├── tests/
+│    └── (test files)
+│
+├── CMakeLists.txt
+├── LICENSE
+└── README.md
+```
 
 ## Features
 
-## Table of contents
+A field can be initialized by defining the underlying structure or by passing an irreducible polynomial along with a field characteristic to the initializer. 
 
-TODO
+Validation (valid irreducible polynomial, valid prime number) of arguments is not performed. 
+
+Polynomial can be initialized seperately. Coefficients are stored in little-endian order.
+
+- **Basic arithmetic operations modulo Irreducible polynomial:** 
+    - GF_elem_sum
+    - GF_elem_diff
+    - GF_elem_prod
+    - GF_elem_div
+    - GF_elem_get_complement
+    - GF_elem_get_neutral
+    - GF_elem_get_unity
+    - GF_elem_get_inverse
+
 
 ## Getting Started
 
@@ -51,15 +75,6 @@ Open the terminal and follow these steps:
     ```sh
     cmake --build . --clean-first
     ```
-
-## Usage
-Below are ways you can utilize functions in this library.
-
-TODO
-
-## Examples
-
-TODO
 
 ## Licenses
 
