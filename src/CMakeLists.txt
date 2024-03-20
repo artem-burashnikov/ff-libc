@@ -4,3 +4,5 @@ add_library(gf STATIC
     poly.c
     utils.c
 )
+
+target_include_directories(gf PUBLIC ${CMAKE_SOURCE_DIR}/src)

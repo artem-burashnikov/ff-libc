@@ -3,8 +3,6 @@ add_executable(tests
     main.c
 )
 
-target_include_directories(tests PUBLIC ${CMAKE_SOURCE_DIR}/src)
-
 # Link the shared library to the tests executable
 target_link_libraries(tests gf)
 
