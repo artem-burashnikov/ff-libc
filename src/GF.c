@@ -57,7 +57,7 @@ bool GF_eq(const GF_t *F, const GF_t *K) {
   // Irreducible polynomials must match.
   bool ret = poly_eq(F->I, K->I);
   // Characteristics of fields and dimensions of extensions must match.
-  if (F->p != K->p || F->I->deg != K->I->deg) {
+  if (F->p != K->p) {
     ret = false;
   }
   return ret;
@@ -79,13 +79,13 @@ GF_elem_t *GF_elem_from_array(uint8_t deg, uint8_t *coeff, GF_t *GF) {
     return NULL;
   }
 
-  // Set coefficients mod p and normalaize degree.
+  // Set coefficients mod p and normalize degree.
   for (size_t i = 0; i <= poly->deg; ++i) {
     poly->coeff[i] %= GF->p;
   }
   poly_normalize_deg(poly);
 
-  // Normalize polynomial over GF(p)[X]/(I).
+  // Redduce polynomial over GF(p)[X]/(I).
   if (poly->deg >= GF->I->deg) {
     poly_div(poly, *poly, *GF->I, GF->p);
   }
