@@ -154,18 +154,14 @@ GF_elem_t *GF_elem_get_inverse(GF_elem_t a) {
 
 GF_elem_t *GF_elem_from_uint8(uint8_t x) {
   GF_elem_t *res = GF_elem_get_neutral(&GF2_8);
-  uint8_t d;
-  uint8_t deg = 0;
+  uint8_t deg = GF2_8.I->deg - 1;
   size_t i = 0;
   while (x > 0) {
-    d = x % 2;
-    if (d == 1) {
-      deg++;
-    }
-    res->poly->coeff[i] = d;
+    res->poly->coeff[i] = x % 2;
     x /= 2;
     i++;
   }
+  poly_normalize_deg(res);
   return res;
 }
 
@@ -181,18 +177,14 @@ uint8_t GF_elem_to_uint8(GF_elem_t *a) {
 
 GF_elem_t *GF_elem_from_uint16(uint16_t x) {
   GF_elem_t *res = GF_elem_get_neutral(&GF2_16);
-  uint8_t d;
-  uint8_t deg = 0;
+  uint8_t deg = GF2_16.I->deg - 1;
   size_t i = 0;
   while (x > 0) {
-    d = x % 2;
-    if (d == 1) {
-      deg++;
-    }
-    res->poly->coeff[i] = d;
+    res->poly->coeff[i] = x % 2;
     x /= 2;
     i++;
   }
+  poly_normalize_deg(deg);
   return res;
 }
 
@@ -208,18 +200,15 @@ uint16_t GF_elem_to_uint16(GF_elem_t *a) {
 
 GF_elem_t *GF_elem_from_uint32(uint32_t x) {
   GF_elem_t *res = GF_elem_get_neutral(&GF2_32);
-  uint8_t d;
-  uint8_t deg = 0;
+  uint8_t deg = GF2_32.I->deg - 1;
   size_t i = 0;
   while (x > 0) {
-    d = x % 2;
-    if (d == 1) {
-      deg++;
-    }
-    res->poly->coeff[i] = d;
+    res->poly->coeff[i] = x % 2;
     x /= 2;
     i++;
   }
+  poly_normalize_deg(res);
+  res->poly->deg = deg;
   return res;
 }
 
