@@ -261,7 +261,7 @@ void GF_elem_prod(GF_elem_t *res, GF_elem_t a, GF_elem_t b) {
   poly_mul(tmp, *a.poly, *b.poly, res->GF->p);
   poly_div(tmp, *tmp, *res->GF->I, res->GF->p);
 
-  memcpy(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * (tmp->deg + 1));
+  memmove(res->poly->coeff, tmp->coeff, sizeof(*tmp->coeff) * (tmp->deg + 1));
   res->poly->deg = tmp->deg;
 
   poly_destroy(tmp);
